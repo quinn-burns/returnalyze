@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Design tokens pulled from the Figma "Navbar" frame
+ * (Fuego Returnalyze Design – node 1801:7210) via the Figma MCP
+ * get_variable_defs tool. Mapped to the Tailwind v4 theme so components
+ * reference semantic utilities (e.g. bg-primary-100) instead of hex literals.
+ */
+@theme {
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #dedede;
+  --color-neutral-500: #8a8a8a;
+  --color-neutral-700: #454545;
+  --color-neutral-800: #212121;
+
+  --color-primary-100: #ebefff;
+  --color-primary-600: #4169e1;
+
+  --color-error-600: #d13636;
+
+  /* Sidebar fixed width from the Figma frame (192px) */
+  --spacing-sidebar: 12rem; /* 192px */
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-neutral-800);
+  background: var(--color-neutral-0);
 }
