@@ -39,7 +39,8 @@
   --color-chart-return: #3457c9;
 
   /* Sidebar fixed width from the Figma frame (192px) */
-  --spacing-sidebar: 12rem; /* 192px */
+  --spacing-sidebar: 14.5rem; /* 232px – expanded navbar (Figma 1807:10037) */
+  --spacing-sidebar-collapsed: 4.5rem; /* 72px – folded navbar (Figma 1807:10038) */
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
