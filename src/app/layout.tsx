@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Sidebar from "@/components/Sidebar";
+import FloatingChat from "@/components/FloatingChat";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,7 +22,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <div className="flex min-h-screen bg-neutral-0">
+          <Sidebar />
+          <main className="min-w-0 flex-1">{children}</main>
+          <FloatingChat />
+        </div>
+      </body>
     </html>
   );
 }

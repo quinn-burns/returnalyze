@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type NavItem = {
   label: string;
   icon: string; // file name in /public/nav
   href: string;
-  selected?: boolean;
   badge?: number;
 };
 
 const MAIN_ITEMS: NavItem[] = [
-  { label: "Overview", icon: "dashboard", href: "/", selected: true },
+  { label: "Overview", icon: "dashboard", href: "/" },
   { label: "Returns Drivers", icon: "lightbulb", href: "/returns-drivers" },
   { label: "Actions", icon: "lists", href: "/actions" },
   { label: "My Workspace", icon: "team-dashboard", href: "/workspace" },
@@ -28,25 +29,43 @@ const UTILITY_ITEMS: NavItem[] = [
 ];
 
 function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
+  const pathname = usePathname();
+  const selected =
+    item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
   return (
-    <a
+    <Link
       href={item.href}
       onClick={onNavigate}
-      aria-current={item.selected ? "page" : undefined}
+      aria-current={selected ? "page" : undefined}
       className={[
         "flex h-10 w-full items-center gap-1 rounded-lg p-2 transition-colors",
-        item.selected
+        selected
           ? "bg-primary-100"
           : "hover:bg-neutral-100 focus-visible:bg-neutral-100",
         "outline-none focus-visible:ring-2 focus-visible:ring-primary-600/40",
       ].join(" ")}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/nav/${item.icon}.svg`} alt="" className="size-6 shrink-0" />
+      <span
+        aria-hidden="true"
+        className="size-6 shrink-0"
+        style={{
+          backgroundColor: selected
+            ? "var(--color-primary-600)"
+            : "var(--color-neutral-700)",
+          maskImage: `url(/nav/${item.icon}.svg)`,
+          WebkitMaskImage: `url(/nav/${item.icon}.svg)`,
+          maskSize: "contain",
+          WebkitMaskSize: "contain",
+          maskRepeat: "no-repeat",
+          WebkitMaskRepeat: "no-repeat",
+          maskPosition: "center",
+          WebkitMaskPosition: "center",
+        }}
+      />
       <span
         className={[
           "whitespace-nowrap text-sm",
-          item.selected
+          selected
             ? "font-medium text-primary-600"
             : "font-normal text-neutral-700",
         ].join(" ")}
@@ -58,7 +77,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
           {item.badge}
         </span>
       ) : null}
-    </a>
+    </Link>
   );
 }
 

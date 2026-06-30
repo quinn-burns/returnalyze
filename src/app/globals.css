@@ -29,6 +29,11 @@
   --color-danger-50: #fef1f1;
   --color-danger-600: #dc2828;
 
+  /* Returns Drivers summary-box tints */
+  --color-magenta-50: #fff1fc;
+  --color-info-50: #f5f7ff;
+  --color-amber-50: #fffbeb;
+
   /* chart series */
   --color-chart-revenue: #fe9b0e;
   --color-chart-return: #3457c9;
