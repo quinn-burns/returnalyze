@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="checklist">
+<mask id="mask0_0_4" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+<rect id="Bounding box" width="24" height="24" fill="var(--fill-0, #D9D9D9)"/>
+</mask>
+<g mask="url(#mask0_0_4)">
+<path id="checklist_2" d="M5.69425 18.452L2.5 15.2578L3.54425 14.2135L5.66925 16.3385L9.91925 12.0885L10.9635 13.1578L5.69425 18.452ZM5.69425 10.8365L2.5 7.64225L3.54425 6.598L5.66925 8.723L9.91925 4.473L10.9635 5.54225L5.69425 10.8365ZM13.0095 16.5577V15.0577H21.5095V16.5577H13.0095ZM13.0095 8.94225V7.44225H21.5095V8.94225H13.0095Z" fill="var(--fill-0, #676767)"/>
+</g>
+</g>
+</svg>

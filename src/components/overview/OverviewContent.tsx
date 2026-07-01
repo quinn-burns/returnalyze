@@ -1,4 +1,5 @@
 import { FilterButton, FilterDropdown, IconButton } from "./Buttons";
+import CustomizeMenu from "./CustomizeMenu";
 
 /* ----------------------------- data ----------------------------- */
 
@@ -64,7 +65,7 @@ function Header() {
         <p className="text-sm text-neutral-500">May 11, 2025 - May 10, 2026</p>
       </div>
       <div className="flex items-center gap-3">
-        <IconButton src="/overview/dashboard-customize.svg" label="Customize dashboard" />
+        <CustomizeMenu />
         <IconButton src="/overview/discover-tune.svg" label="Adjust filters" />
         <IconButton src="/overview/ios-share.svg" label="Share" />
       </div>
