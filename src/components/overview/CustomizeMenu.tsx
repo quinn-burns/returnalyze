@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /* Segmented A/B toggle from the design system (Buttons-Toggle-AB). */
 function ToggleAB({
@@ -53,7 +53,35 @@ const ROWS: { label: string; options: [string, string]; initial: number }[] = [
 export default function CustomizeMenu() {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState(ROWS.map((r) => r.initial));
+  const [shiftX, setShiftX] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Keep the panel inside the viewport: measure where it would land
+  // unshifted, then nudge it left/right so both edges stay visible.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const clamp = () => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const prev = panel.style.transform;
+      panel.style.transform = "none";
+      const rect = panel.getBoundingClientRect();
+      panel.style.transform = prev;
+      const margin = 16;
+      let dx = 0;
+      if (rect.right > window.innerWidth - margin) {
+        dx = window.innerWidth - margin - rect.right;
+      }
+      if (rect.left + dx < margin) {
+        dx = margin - rect.left;
+      }
+      setShiftX(dx);
+    };
+    clamp();
+    window.addEventListener("resize", clamp);
+    return () => window.removeEventListener("resize", clamp);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -87,7 +115,9 @@ export default function CustomizeMenu() {
 
       {open && (
         <div
+          ref={panelRef}
           role="menu"
+          style={{ transform: shiftX ? `translateX(${shiftX}px)` : undefined }}
           className="absolute right-0 top-full z-50 mt-2 flex w-[267px] max-w-[calc(100vw-2rem)] flex-col gap-4 rounded-lg border border-neutral-150 bg-neutral-0 p-4 shadow-[0px_4px_20px_7px_rgba(0,0,0,0.07)]"
         >
           {ROWS.map((row, i) => (

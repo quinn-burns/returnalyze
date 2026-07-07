@@ -251,7 +251,7 @@ export default function Sidebar() {
           scrolled ? "shadow-[2px_0_16px_rgba(0,0,0,0.08)]" : "shadow-none",
         ].join(" ")}
       >
-       <div className="flex min-h-full flex-col gap-10">
+       <div className="flex min-h-full flex-col gap-6">
         {/* Logo header */}
         {showCollapsed ? (
           <div className="flex h-20 shrink-0 items-center justify-center py-1">
@@ -296,7 +296,7 @@ export default function Sidebar() {
 
         {/* Pages */}
         <nav className="flex min-h-0 w-full flex-1 flex-col justify-between">
-          <div className="flex w-full flex-col gap-4">
+          <div className="flex w-full flex-col gap-2">
             {MAIN_ITEMS.map((item) => (
               <NavLink
                 key={item.label}
@@ -307,7 +307,7 @@ export default function Sidebar() {
             ))}
           </div>
 
-          <div className="flex w-full flex-col gap-5 border-t border-neutral-200 pt-4">
+          <div className="flex w-full flex-col gap-4 border-t border-neutral-200 pt-4">
             <div className="flex w-full flex-col gap-2">
               {UTILITY_ITEMS.map((item) => (
                 <NavLink
