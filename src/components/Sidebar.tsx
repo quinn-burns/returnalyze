@@ -327,7 +327,7 @@ export default function Sidebar() {
                 <img
                   src="/nav/returnalyze-mark.svg"
                   alt="Returnalyze"
-                  className="size-6"
+                  className="h-auto w-6"
                 />
               </div>
             ) : (
