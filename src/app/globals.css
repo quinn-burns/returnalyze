@@ -2,7 +2,7 @@
 
 /*
  * Design tokens pulled from the Figma "Navbar" frame
- * (Fuego Returnalyze Design – node 1801:7210) via the Figma MCP
+ * (Fuego Design – node 1801:7210) via the Figma MCP
  * get_variable_defs tool. Mapped to the Tailwind v4 theme so components
  * reference semantic utilities (e.g. bg-primary-100) instead of hex literals.
  */

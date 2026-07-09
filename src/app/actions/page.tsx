@@ -1,7 +1,7 @@
 import ActionsContent from "@/components/actions/ActionsContent";
 
 export const metadata = {
-  title: "Actions — Returnalyze",
+  title: "Actions — Return App",
 };
 
 export default function ActionsPage() {

@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Returnalyze",
-  description: "Returnalyze sidebar navigation — Figma replication",
+  title: "Return App",
+  description: "Return App sidebar navigation — Figma replication",
 };
 
 export default function RootLayout({

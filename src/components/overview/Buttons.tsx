@@ -1,5 +1,5 @@
 /*
- * Reusable buttons mapped from the Returnalyze design system
+ * Reusable buttons mapped from the design system
  * (file gexI7NyC9mclenMQQdqL8X). The Overview header uses the
  * "secondary-med" icon button; the filter bar uses "dd-default"
  * dropdowns and the disabled "Apply Filters" / "Reset" actions.

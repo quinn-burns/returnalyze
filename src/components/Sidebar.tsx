@@ -292,8 +292,8 @@ export default function Sidebar() {
               <div className="flex h-[34px] w-full items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/nav/returnalyze-mark.svg"
-                  alt="Returnalyze"
+                  src="/nav/brand-mark.svg"
+                  alt="Return App"
                   className="h-auto w-6"
                 />
               </div>
@@ -301,8 +301,8 @@ export default function Sidebar() {
               <div className="flex h-[34px] w-full items-center px-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/nav/returnalyze-logo.svg"
-                  alt="Returnalyze"
+                  src="/nav/brand-logo.svg"
+                  alt="Return App"
                   className="h-[21px] w-auto"
                 />
               </div>

@@ -1,7 +1,7 @@
 import AdminContent from "@/components/admin/AdminContent";
 
 export const metadata = {
-  title: "Admin — Returnalyze",
+  title: "Admin — Return App",
 };
 
 export default function AdminPage() {
