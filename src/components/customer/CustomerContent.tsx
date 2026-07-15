@@ -81,9 +81,9 @@ const KPIS: { label: string; value: string; change: string; trend: Trend }[] = [
 // both size and color, so these shares overlap and add to more than 100%.
 const BRACKETED_TOTAL = "171K";
 const TYPE_BREAKDOWN = [
-  { label: "Size", pct: 65, orders: "111K", color: "#d13636" },
+  { label: "Size", pct: 65, orders: "111K", color: "#dc2828" },
   { label: "Color", pct: 51, orders: "87K", color: "#4169e1" },
-  { label: "Other", pct: 2, orders: "3K", color: "#94a3b8" },
+  { label: "Other", pct: 2, orders: "3K", color: "#ababab" },
 ];
 
 // Profit and outcome per bracketing type, ordered best → worst profit per order.
@@ -96,9 +96,9 @@ const BRACKETING_TYPES = [
 const PROFIT_MAX = 50; // scale for the diverging profit bars
 
 const OUTCOME_LEGEND = [
-  { label: "Kept all", color: "#22a06b" },
-  { label: "Kept some", color: "#f5a623" },
-  { label: "Returned all", color: "#d13636" },
+  { label: "Kept all", color: "#059467" },
+  { label: "Kept some", color: "#f59f0a" },
+  { label: "Returned all", color: "#dc2828" },
 ];
 
 type Row = {

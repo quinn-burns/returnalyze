@@ -12,7 +12,7 @@ const KPIS = [
 ];
 
 const KIND = [
-  { label: "Size", pct: 58, color: "#d13636" },
+  { label: "Size", pct: 58, color: "#dc2828" },
   { label: "Color", pct: 21, color: "#4169e1" },
 ];
 
@@ -103,17 +103,17 @@ function ExchangeOutcome() {
       />
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
         <span className="flex items-center gap-1.5 text-[11px] text-neutral-600">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#22a06b" }} /> Kept — 67%
+          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#059467" }} /> Kept — 67%
         </span>
         <span className="flex items-center gap-1.5 text-[11px] text-neutral-600">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#d13636" }} /> Returned — 33%
+          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#dc2828" }} /> Returned — 33%
         </span>
       </div>
       <div className="mt-4 flex h-6 w-full overflow-hidden rounded-full text-[11px] font-semibold text-white">
-        <span className="flex items-center justify-center" style={{ width: "67%", backgroundColor: "#22a06b" }}>
+        <span className="flex items-center justify-center" style={{ width: "67%", backgroundColor: "#059467" }}>
           67%
         </span>
-        <span className="flex items-center justify-center" style={{ width: "33%", backgroundColor: "#d13636" }}>
+        <span className="flex items-center justify-center" style={{ width: "33%", backgroundColor: "#dc2828" }}>
           33%
         </span>
       </div>
@@ -128,7 +128,7 @@ function ComeBack() {
       <div className="flex flex-col gap-1">
         <h2 className="text-base font-semibold text-neutral-800">Where do they come back?</h2>
         <p className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#d13636" }} />
+          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#dc2828" }} />
           Breaking down the <span className="font-semibold text-neutral-700">Returned — 33%</span> ·
           top styles, by re-return rate × volume
         </p>

@@ -37,13 +37,32 @@
   --color-primary-600: #4169e1;
   --color-primary-700: #3457c9;
 
-  --color-error-600: #d13636;
+  --color-primary-200: #d6e0ff;
+  --color-primary-300: #a3baff;
+  --color-primary-800: #2846a9;
 
-  /* status pills + Returns Drivers tint */
+  --color-neutral-300: #c4c4c4;
+  --color-neutral-900: #000000;
+
+  --color-error-600: #dc2828;
+
+  /* success / error / warning — official style guide (Figma 1415:45) */
   --color-success-50: #edfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-500: #10b77f;
   --color-success-600: #059467;
   --color-danger-50: #fef1f1;
+  --color-danger-500: #ef4343;
   --color-danger-600: #dc2828;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c8;
+  --color-warning-400: #fbbd23;
+  --color-warning-500: #f59f0a;
+  --color-warning-600: #db7706;
+
+  /* brand accents */
+  --color-brand-sky: #1d97ff;
+  --color-brand-teal: #27cba7;
 
   /* Returns Drivers summary-box tints */
   --color-magenta-50: #fff1fc;

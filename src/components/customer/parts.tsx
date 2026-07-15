@@ -2,6 +2,18 @@
 
 import type { ReactNode } from "react";
 
+// Chart fill colors — official Fuego Returnalyze palette (Figma node 1415:45).
+export const CHART = {
+  blue: "#4169e1", // primary-600
+  green: "#059467", // success-600
+  amber: "#f59f0a", // warning-500
+  red: "#dc2828", // error-600
+  sky: "#1d97ff", // brand
+  teal: "#27cba7", // brand
+  grey: "#ababab", // neutral-400
+  track: "#dedede", // neutral-200 (bar/donut track)
+} as const;
+
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <section className={`rounded-lg border border-neutral-200 bg-neutral-0 p-4 ${className}`}>
@@ -41,7 +53,7 @@ export function AiInsight({ children }: { children: ReactNode }) {
         </span>
         <h2 className="text-xl font-semibold text-primary-700">AI Insight</h2>
       </div>
-      <p className="mt-1.5 max-w-[900px] text-sm leading-5 text-neutral-700">{children}</p>
+      <p className="mt-1.5 w-full text-sm leading-5 text-neutral-700">{children}</p>
     </div>
   );
 }
@@ -127,7 +139,7 @@ export function Donut({
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg viewBox="0 0 100 100" className="size-full -rotate-90">
-        <circle cx="50" cy="50" r="40" fill="none" stroke="#eeeeee" strokeWidth="12" />
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#dedede" strokeWidth="12" />
         {arcs.map((seg) => (
           <circle
             key={seg.label}

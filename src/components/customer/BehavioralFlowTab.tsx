@@ -6,14 +6,14 @@ import { Card } from "./parts";
 
 const COLORS = {
   size: "#4169e1",
-  color: "#7c3aed",
-  sizeColor: "#0ea5e9",
-  noBracket: "#94a3b8",
-  returnedAll: "#d13636",
-  keptSome: "#f5a623",
-  keptAll: "#22a06b",
-  nextPurchase: "#0d9488",
-  nextDept: "#64748b",
+  color: "#27cba7",
+  sizeColor: "#1d97ff",
+  noBracket: "#ababab",
+  returnedAll: "#dc2828",
+  keptSome: "#f59f0a",
+  keptAll: "#059467",
+  nextPurchase: "#059467",
+  nextDept: "#8a8a8a",
 };
 
 type NodeDef = { id: string; label: string; value: number; color: string };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Card, ExportButton, KpiStrip } from "./parts";
+import { Card, CardHeading, ExportButton, KpiStrip } from "./parts";
 
 /* ----------------------------- data ----------------------------- */
 
@@ -260,6 +260,58 @@ function TierSelect() {
   );
 }
 
+function parseMoney(v: string): number {
+  const s = v.replace(/[$,]/g, "");
+  const n = parseFloat(s) || 0;
+  if (s.includes("M")) return n * 1e6;
+  if (s.includes("K")) return n * 1e3;
+  return n;
+}
+
+function summaryVal(seg: Segment, label: string): string {
+  return seg.summary.find((x) => x.label === label)?.value ?? "";
+}
+
+function SegmentImpact({ segments }: { segments: Segment[] }) {
+  const rows = segments
+    .map((s) => ({
+      name: s.name,
+      revenue: summaryVal(s, "Return Revenue"),
+      value: parseMoney(summaryVal(s, "Return Revenue")),
+      customers: summaryVal(s, "Customer Count"),
+      rate: summaryVal(s, "Return Rate ($)"),
+    }))
+    .sort((a, b) => b.value - a.value);
+  const max = Math.max(...rows.map((r) => r.value), 1);
+  return (
+    <Card>
+      <CardHeading
+        title="Return revenue at risk by segment"
+        subtitle="Selected segments ranked by the return revenue they represent."
+      />
+      <div className="mt-4 flex flex-col gap-3">
+        {rows.map((r) => (
+          <div key={r.name} className="flex items-center gap-3">
+            <span className="w-52 shrink-0 truncate text-sm font-medium text-neutral-800">
+              {r.name}
+            </span>
+            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100">
+              <div
+                className="h-5 rounded-full bg-warning-500"
+                style={{ width: `${(r.value / max) * 100}%` }}
+              />
+            </div>
+            <span className="w-52 shrink-0 text-right text-xs text-neutral-500">
+              <span className="font-semibold text-neutral-800">{r.revenue}</span> · {r.customers}{" "}
+              cust · {r.rate} rate
+            </span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function SegmentSection({ segment }: { segment: Segment }) {
   return (
     <Card>
@@ -276,22 +328,24 @@ function SegmentSection({ segment }: { segment: Segment }) {
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="text-neutral-500">
-              <th className="py-2 pr-3 font-normal">Customer ID</th>
-              <th className="px-3 py-2 font-normal">Revenue</th>
-              <th className="px-3 py-2 font-normal">Return Revenue</th>
-              <th className="px-3 py-2 font-normal">Units Returned by Department</th>
-              <th className="px-3 py-2 font-normal">Units Returned by Item</th>
+            <tr className="border-b border-neutral-200 text-neutral-500">
+              <th className="whitespace-nowrap py-2 pr-3 font-normal">Customer ID</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Revenue</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Return Revenue</th>
+              <th className="whitespace-nowrap px-3 py-2 font-normal">Units Returned by Department</th>
+              <th className="whitespace-nowrap px-3 py-2 font-normal">Units Returned by Item</th>
             </tr>
           </thead>
           <tbody>
             {segment.customers.map((c) => (
-              <tr key={c.id} className="border-t border-primary-50 align-top">
-                <td className="py-2.5 pr-3 font-medium text-neutral-800">{c.id}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{c.revenue}</td>
-                <td className="px-3 py-2.5 font-medium text-amber-600">{c.returnRevenue}</td>
-                <td className="px-3 py-2.5 text-neutral-600">{c.depts}</td>
-                <td className="px-3 py-2.5 text-neutral-600">{c.items}</td>
+              <tr key={c.id} className="border-b border-primary-50 align-top last:border-b-0">
+                <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{c.id}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{c.revenue}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-right font-medium text-warning-600">
+                  {c.returnRevenue}
+                </td>
+                <td className="px-3 py-3 text-neutral-600">{c.depts}</td>
+                <td className="px-3 py-3 text-neutral-600">{c.items}</td>
               </tr>
             ))}
           </tbody>
@@ -327,7 +381,12 @@ export default function SegmentsTab() {
           Select at least one segment to display.
         </Card>
       ) : (
-        shown.map((s) => <SegmentSection key={s.name} segment={s} />)
+        <>
+          {shown.length > 1 ? <SegmentImpact segments={shown} /> : null}
+          {shown.map((s) => (
+            <SegmentSection key={s.name} segment={s} />
+          ))}
+        </>
       )}
     </>
   );

@@ -19,10 +19,10 @@ const METRICS = [
 
 const REASONS = [
   { label: "Too Snug/Tight", pct: 28.5, color: "#4169e1" },
-  { label: "Too Large", pct: 21.4, color: "#22a06b" },
-  { label: "Too Small", pct: 19.8, color: "#f5a623" },
-  { label: "Not As Expected", pct: 16.2, color: "#d13636" },
-  { label: "Quality Issues", pct: 14.1, color: "#38bdf8" },
+  { label: "Too Large", pct: 21.4, color: "#059467" },
+  { label: "Too Small", pct: 19.8, color: "#f59f0a" },
+  { label: "Not As Expected", pct: 16.2, color: "#dc2828" },
+  { label: "Quality Issues", pct: 14.1, color: "#1d97ff" },
 ];
 
 const STYLES = [
@@ -205,14 +205,14 @@ function TrendChart() {
     { color: "#4169e1", points: [52, 55, 58, 56, 57, 55, 54] },
     { color: "#4169e1", dash: "4 4", points: [54, 56, 55, 57] },
     { color: "#8a8a8a", points: [46, 44, 47, 45, 44, 46, 45, 46, 45, 47] },
-    { color: "#f5a623", points: [38, 36, 39, 37, 36, 38, 33, 37, 36, 38] },
+    { color: "#f59f0a", points: [38, 36, 39, 37, 36, 38, 33, 37, 36, 38] },
     { color: "#212121", points: [44, 43, 45, 44, 43, 44, 43, 44, 43, 44] },
   ];
   const legend = [
     { label: "Return Rate (Actual)", color: "#4169e1" },
     { label: "Return Rate (Predicted)", color: "#4169e1", dash: true },
     { label: "Previous Year", color: "#8a8a8a" },
-    { label: "Baseline", color: "#f5a623" },
+    { label: "Baseline", color: "#f59f0a" },
     { label: "Industry Benchmark", color: "#212121" },
   ];
   return (
@@ -223,7 +223,7 @@ function TrendChart() {
             <text x="22" y={y(v) + 3} textAnchor="end" fontSize="8" fill="#8a8a8a">
               {v}
             </text>
-            <line x1="30" x2="440" y1={y(v)} y2={y(v)} stroke="#f0f0f0" />
+            <line x1="30" x2="440" y1={y(v)} y2={y(v)} stroke="#f5f5f5" />
           </g>
         ))}
         <line x1={x(6)} x2={x(6)} y1={y(100)} y2={y(0)} stroke="#dedede" strokeDasharray="3 3" />

@@ -42,10 +42,12 @@ export function FilterDropdown({ label }: { label: string }) {
   return (
     <button
       type="button"
-      className="flex h-10 min-w-[150px] flex-1 items-center justify-between rounded-lg border border-neutral-200 bg-neutral-0 px-3 text-sm text-neutral-800 transition-colors hover:bg-neutral-50"
+      className="flex h-10 min-w-[160px] flex-1 items-center justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-0 px-3 text-sm text-neutral-800 transition-colors hover:bg-neutral-50"
     >
       <span className="truncate">{label}</span>
-      <Chevron />
+      <span className="flex shrink-0">
+        <Chevron />
+      </span>
     </button>
   );
 }
