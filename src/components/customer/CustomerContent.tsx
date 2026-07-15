@@ -263,9 +263,9 @@ function TypeBreakdown() {
         {TYPE_BREAKDOWN.map((t) => (
           <div key={t.label} className="flex items-center gap-3">
             <span className="w-12 shrink-0 text-sm font-medium text-neutral-800">{t.label}</span>
-            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100">
+            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-md bg-neutral-100">
               <div
-                className="h-5 rounded-full"
+                className="h-5 rounded-md"
                 style={{ width: `${t.pct}%`, backgroundColor: t.color }}
               />
             </div>
@@ -363,7 +363,7 @@ function BracketingOutcomes() {
                   {t.keep[2]}% returned
                 </span>
               </div>
-              <div className="flex h-3 w-full overflow-hidden rounded-full">
+              <div className="flex h-3 w-full overflow-hidden rounded-md">
                 {t.keep.map((p, i) => (
                   <span key={i} style={{ width: `${p}%`, backgroundColor: OUTCOME_LEGEND[i].color }} />
                 ))}

@@ -295,9 +295,9 @@ function SegmentImpact({ segments }: { segments: Segment[] }) {
             <span className="w-52 shrink-0 truncate text-sm font-medium text-neutral-800">
               {r.name}
             </span>
-            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100">
+            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-md bg-neutral-100">
               <div
-                className="h-5 rounded-full bg-warning-500"
+                className="h-5 rounded-md bg-warning-500"
                 style={{ width: `${(r.value / max) * 100}%` }}
               />
             </div>

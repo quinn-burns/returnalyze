@@ -75,9 +75,9 @@ function ExchangeKind() {
         {KIND.map((t) => (
           <div key={t.label} className="flex items-center gap-3">
             <span className="w-12 shrink-0 text-sm font-medium text-neutral-800">{t.label}</span>
-            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100">
+            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-md bg-neutral-100">
               <div
-                className="h-5 rounded-full"
+                className="h-5 rounded-md"
                 style={{ width: `${t.pct}%`, backgroundColor: t.color }}
               />
             </div>
@@ -109,7 +109,7 @@ function ExchangeOutcome() {
           <span className="size-2.5 rounded-full" style={{ backgroundColor: "#dc2828" }} /> Returned — 33%
         </span>
       </div>
-      <div className="mt-4 flex h-6 w-full overflow-hidden rounded-full text-[11px] font-semibold text-white">
+      <div className="mt-4 flex h-6 w-full overflow-hidden rounded-md text-[11px] font-semibold text-white">
         <span className="flex items-center justify-center" style={{ width: "67%", backgroundColor: "#059467" }}>
           67%
         </span>
@@ -139,9 +139,9 @@ function ComeBack() {
             <span className="w-40 shrink-0 truncate text-sm font-medium text-neutral-800">
               {s.style}
             </span>
-            <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100">
+            <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-md bg-neutral-100">
               <div
-                className="h-4 rounded-full bg-danger-600"
+                className="h-4 rounded-md bg-danger-600"
                 style={{ width: `${(s.pct / max) * 100}%` }}
               />
             </div>
