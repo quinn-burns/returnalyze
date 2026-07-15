@@ -30,24 +30,18 @@ export function CardHeading({
   );
 }
 
-export function InfoBanner({ title, body }: { title: string; body: string }) {
+/** AI-generated insight callout, matching the Overview "AI Returns Summary" card. */
+export function AiInsight({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-primary-100 bg-primary-50 p-4">
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-        className="mt-0.5 shrink-0"
-      >
-        <circle cx="12" cy="12" r="9" stroke="#4169e1" strokeWidth="1.6" />
-        <path d="M12 11v5" stroke="#4169e1" strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="12" cy="8" r="1.1" fill="#4169e1" />
-      </svg>
-      <p className="text-sm text-neutral-700">
-        <span className="font-semibold text-neutral-800">{title}</span> {body}
-      </p>
+    <div className="rounded-lg border border-primary-100 bg-primary-50 p-4">
+      <div className="flex items-center gap-1.5">
+        <span className="flex items-center justify-center rounded-full bg-gradient-to-b from-[#27cba7] to-[#0b61dd] p-[3.5px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/overview/ai-logo.svg" alt="" className="size-[17px]" />
+        </span>
+        <h2 className="text-xl font-semibold text-primary-700">AI Insight</h2>
+      </div>
+      <p className="mt-1.5 max-w-[900px] text-sm leading-5 text-neutral-700">{children}</p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, InfoBanner } from "./parts";
+import { Card } from "./parts";
 
 /* ----------------------------- model ----------------------------- */
 
@@ -267,10 +267,6 @@ function AllPaths() {
 export default function BehavioralFlowTab() {
   return (
     <>
-      <InfoBanner
-        title="Track the full customer journey."
-        body="Follow customers from how they bracket, through what they keep, to whether they come back and what they buy next. Hover any flow or node for customers, total value, and average value."
-      />
       <Card>
         <div className="flex flex-col gap-1">
           <h2 className="text-base font-semibold text-neutral-800">Behavioral flow</h2>

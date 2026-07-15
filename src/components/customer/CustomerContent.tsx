@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FilterDropdown } from "../overview/Buttons";
+import { AiInsight } from "./parts";
 import ExchangeTab from "./ExchangeTab";
 import SegmentsTab from "./SegmentsTab";
 import BehavioralFlowTab from "./BehavioralFlowTab";
@@ -13,6 +14,60 @@ const FILTERS = ["All Brands", "All Countries", "All Product Categories"];
 const TABS = ["Bracketing", "Exchange", "Segments", "Behavioral Flow"] as const;
 type Tab = (typeof TABS)[number];
 
+const TAB_META: Record<Tab, { description: string; insight: React.ReactNode }> = {
+  Bracketing: {
+    description:
+      "How customers order multiple sizes or colors of the same style to compare at home — and where that bracketing adds or erodes margin.",
+    insight: (
+      <>
+        Color bracketing is almost always profitable — color-bracketed orders generate{" "}
+        <span className="font-semibold text-neutral-800">$20–50 more revenue per order</span> than
+        non-bracketed. Size bracketing, by contrast, breaks even or loses money across your top
+        categories, so it&rsquo;s the lever with the most downside to manage.
+      </>
+    ),
+  },
+  Exchange: {
+    description:
+      "How often returns are recovered as same-style exchanges instead of lost sales, broken down by department.",
+    insight: (
+      <>
+        Exchanges recover revenue that returns otherwise lose. A true same-style exchange keeps the
+        sale, and departments with{" "}
+        <span className="font-semibold text-neutral-800">
+          low exchange rates or high re-return rates
+        </span>{" "}
+        are your biggest untapped opportunities — Light Hike and Running lead on size-exchange
+        upside.
+      </>
+    ),
+  },
+  Segments: {
+    description:
+      "Actionable customer groups surfaced from return behavior — ready to filter by loyalty tier and export.",
+    insight: (
+      <>
+        Your <span className="font-semibold text-neutral-800">836 unprofitable customers</span> alone
+        account for $1.5M in return revenue at a 48% return rate. Overlaying them with the high
+        return-rate and likely-reseller segments gives you a targeted list to act on before the cost
+        compounds.
+      </>
+    ),
+  },
+  "Behavioral Flow": {
+    description:
+      "The full journey from how customers bracket, through what they keep, to whether they come back and what they buy next.",
+    insight: (
+      <>
+        Customers who <span className="font-semibold text-neutral-800">keep all</span> of a bracketed
+        order are far more valuable downstream — they repurchase at high rates and drive most net
+        value into W Denim and W Tops. Those who return everything and don&rsquo;t come back are the
+        clearest early churn signal to intervene on.
+      </>
+    ),
+  },
+};
+
 type Trend = "down" | "up" | "flat";
 const KPIS: { label: string; value: string; change: string; trend: Trend }[] = [
   { label: "Return Rate (V)", value: "14.76%", change: "↓ 2.0 pts vs LY", trend: "down" },
@@ -22,27 +77,18 @@ const KPIS: { label: string; value: string; change: string; trend: Trend }[] = [
   { label: "% Orders Bracketed on Color", value: "4.33%", change: "↓ 0.2 pts vs LY", trend: "down" },
 ];
 
-const KIND_SEGMENTS = [
-  { label: "Size", detail: "65% · 19K orders", pct: 65, color: "#4169e1" },
-  { label: "Color", detail: "28% · 8K orders", pct: 28, color: "#22a06b" },
-  { label: "Both", detail: "2% · 3K orders", pct: 7, color: "#f5a623" },
+// One record per bracketing type, ordered best → worst profit per order.
+// keep = [kept all, kept some, returned all] as percentages.
+const BRACKETING_TYPES = [
+  { label: "Color", orders: "4.8K", pct: 28, profit: 44, keep: [90, 8, 2] },
+  { label: "Both", orders: "1.2K", pct: 7, profit: 21, keep: [78, 15, 7] },
+  { label: "Size", orders: "11K", pct: 65, profit: -7, keep: [10, 50, 40] },
 ];
+const PROFIT_MAX = 50; // scale for the diverging profit bars
 
-const OUTCOME_BARS = [
-  {
-    label: "Size-bracketed",
-    annotation: "10% kept all · 50% kept some · 40% returned all",
-    parts: [10, 50, 40],
-  },
-  {
-    label: "Color-bracketed",
-    annotation: "90% kept all · 0% kept some · 10% returned all",
-    parts: [90, 0, 10],
-  },
-];
 const OUTCOME_LEGEND = [
   { label: "Kept all", color: "#22a06b" },
-  { label: "kept some", color: "#f5a623" },
+  { label: "Kept some", color: "#f5a623" },
   { label: "Returned all", color: "#d13636" },
 ];
 
@@ -115,9 +161,7 @@ function Header() {
   return (
     <header className="flex flex-wrap items-start justify-between gap-4 bg-neutral-0 px-4 py-6">
       <div className="flex flex-col justify-center">
-        <h1 className="text-[36px] font-bold leading-tight text-neutral-800">
-          Customer Behavior
-        </h1>
+        <h1 className="text-[36px] font-bold leading-tight text-neutral-800">Customer</h1>
         <p className="text-sm text-neutral-500">
           Understand customer behavior including bracketing, exchanges, and returns by department
         </p>
@@ -180,25 +224,6 @@ function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   );
 }
 
-function InfoBanner() {
-  return (
-    <div className="flex items-start gap-2 rounded-lg border border-primary-100 bg-primary-50 p-4">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="mt-0.5 shrink-0">
-        <circle cx="12" cy="12" r="9" stroke="#4169e1" strokeWidth="1.6" />
-        <path d="M12 11v5" stroke="#4169e1" strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="12" cy="8" r="1.1" fill="#4169e1" />
-      </svg>
-      <p className="text-sm text-neutral-700">
-        <span className="font-semibold text-neutral-800">
-          Color bracketing is almost always profitable.
-        </span>{" "}
-        Color-bracketed orders generate +$20–50 more revenue per order than non-bracketed. Size
-        bracketing breaks even or loses money in top categories.
-      </p>
-    </div>
-  );
-}
-
 function KpiRow() {
   return (
     <div className="grid grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-0 sm:grid-cols-3 lg:grid-cols-5">
@@ -213,68 +238,68 @@ function KpiRow() {
   );
 }
 
-function KindDonut() {
-  const total = KIND_SEGMENTS.reduce((s, seg) => s + seg.pct, 0);
-  const c = 2 * Math.PI * 40;
-  const arcs = KIND_SEGMENTS.map((seg, i) => ({
-    ...seg,
-    dash: (seg.pct / total) * c,
-    offset: KIND_SEGMENTS.slice(0, i).reduce((s, x) => s + (x.pct / total) * c, 0),
-  }));
+function DivergingProfitBar({ value }: { value: number }) {
+  const pct = Math.min(Math.abs(value) / PROFIT_MAX, 1) * 100;
+  const positive = value >= 0;
+  return (
+    <div className="flex h-6 items-center" aria-hidden="true">
+      <div className="flex flex-1 justify-end">
+        {positive ? null : (
+          <div className="h-5 rounded-l-md bg-danger-600" style={{ width: `${pct}%` }} />
+        )}
+      </div>
+      <div className="h-6 w-px bg-neutral-300" />
+      <div className="flex flex-1 justify-start">
+        {positive ? (
+          <div className="h-5 rounded-r-md bg-success-600" style={{ width: `${pct}%` }} />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function BracketingProfit() {
   return (
     <Card>
       <CardHeading
-        title="Of bracketed orders, what kind?"
-        subtitle="Size = same style, different sizes. Color = same style, different colors."
+        title="Where bracketing helps or hurts profit"
+        subtitle="Average profit per order by bracketing type — green adds margin, red loses it."
       />
-      <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
-        <div className="relative size-[130px] shrink-0">
-          <svg viewBox="0 0 100 100" className="size-full -rotate-90">
-            {arcs.map((seg) => (
-              <circle
-                key={seg.label}
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke={seg.color}
-                strokeWidth="12"
-                strokeDasharray={`${seg.dash} ${c - seg.dash}`}
-                strokeDashoffset={-seg.offset}
-              />
-            ))}
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-bold text-neutral-800">17K</span>
-            <span className="text-[10px] text-neutral-500">orders</span>
+      <div className="mt-4 flex flex-col gap-3">
+        {BRACKETING_TYPES.map((t) => (
+          <div key={t.label} className="flex items-center gap-3">
+            <div className="w-16 shrink-0">
+              <p className="text-sm font-medium text-neutral-800">{t.label}</p>
+              <p className="text-[11px] text-neutral-500">
+                {t.orders} · {t.pct}%
+              </p>
+            </div>
+            <div className="min-w-0 flex-1">
+              <DivergingProfitBar value={t.profit} />
+            </div>
+            <span
+              className={`w-14 shrink-0 text-right text-sm font-semibold ${
+                t.profit >= 0 ? "text-success-600" : "text-danger-600"
+              }`}
+            >
+              {t.profit >= 0 ? "+" : "−"}${Math.abs(t.profit)}
+            </span>
           </div>
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <ul className="flex flex-col gap-1.5">
-            {KIND_SEGMENTS.map((seg) => (
-              <li key={seg.label} className="flex items-center gap-2 text-xs">
-                <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: seg.color }} />
-                <span className="font-medium text-neutral-800">{seg.label}</span>
-                <span className="text-neutral-500">{seg.detail}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-xs leading-4 text-neutral-500">
-            Color bracketing is <span className="font-semibold text-neutral-700">more common</span>{" "}
-            and almost always profitable. Size bracketing often breaks even or loses money.
-          </p>
-        </div>
+        ))}
       </div>
+      <p className="mt-3 text-center text-[10px] text-neutral-400">
+        Profit per order relative to a $0 break-even line
+      </p>
     </Card>
   );
 }
 
-function OutcomeBars() {
+function BracketingOutcomes() {
   return (
     <Card>
       <CardHeading
-        title="When they bracket, what happens?"
-        subtitle="Weighted across all style orders. One row per bracketing type."
+        title="Do bracketed orders come back?"
+        subtitle="Share of each bracketing type kept versus returned."
       />
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
         {OUTCOME_LEGEND.map((l) => (
@@ -285,22 +310,25 @@ function OutcomeBars() {
         ))}
       </div>
       <div className="mt-4 flex flex-col gap-4">
-        {OUTCOME_BARS.map((bar) => (
-          <div key={bar.label} className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-neutral-800">{bar.label}</span>
-              <span className="text-[11px] text-neutral-500">{bar.annotation}</span>
+        {BRACKETING_TYPES.map((t) => {
+          const kept = t.keep[0] + t.keep[1];
+          return (
+            <div key={t.label} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-neutral-800">{t.label}</span>
+                <span className="text-[11px] text-neutral-500">
+                  <span className="font-semibold text-neutral-700">{kept}% kept</span> ·{" "}
+                  {t.keep[2]}% returned
+                </span>
+              </div>
+              <div className="flex h-3 w-full overflow-hidden rounded-full">
+                {t.keep.map((p, i) => (
+                  <span key={i} style={{ width: `${p}%`, backgroundColor: OUTCOME_LEGEND[i].color }} />
+                ))}
+              </div>
             </div>
-            <div className="flex h-3 w-full overflow-hidden rounded-full">
-              {bar.parts.map((p, i) => (
-                <span
-                  key={i}
-                  style={{ width: `${p}%`, backgroundColor: OUTCOME_LEGEND[i].color }}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );
@@ -368,11 +396,10 @@ function ActionTable({
 function BracketingTab() {
   return (
     <>
-      <InfoBanner />
       <KpiRow />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <KindDonut />
-        <OutcomeBars />
+        <BracketingProfit />
+        <BracketingOutcomes />
       </div>
       <div className="flex flex-col gap-5 lg:flex-row">
         <ActionTable
@@ -409,6 +436,8 @@ export default function CustomerContent() {
       <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
         <FilterBar tab={tab} />
         <TabBar tab={tab} onChange={setTab} />
+        <p className="-mt-1 text-sm text-neutral-500">{TAB_META[tab].description}</p>
+        <AiInsight>{TAB_META[tab].insight}</AiInsight>
         {tab === "Bracketing" ? (
           <BracketingTab />
         ) : tab === "Exchange" ? (

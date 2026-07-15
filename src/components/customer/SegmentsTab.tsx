@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Card, ExportButton, InfoBanner, KpiStrip } from "./parts";
+import { Card, ExportButton, KpiStrip } from "./parts";
 
 /* ----------------------------- data ----------------------------- */
 
@@ -312,10 +312,6 @@ export default function SegmentsTab() {
   const shown = SEGMENTS.filter((s) => selected.includes(s.name));
   return (
     <>
-      <InfoBanner
-        title="Customer segments Returnalyze identifies."
-        body="Exportable lists of customers to act on. Choose which segments to show and filter by loyalty tier. Thresholds are configurable in the backend."
-      />
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex flex-col gap-1 text-xs text-neutral-500">
           Segments

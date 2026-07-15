@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardHeading,
-  Donut,
-  InfoBanner,
-  InsightLink,
-  KpiStrip,
-  TakeAction,
-} from "./parts";
+import { Card, CardHeading, Donut, InsightLink, KpiStrip, TakeAction } from "./parts";
 
 /* ----------------------------- data ----------------------------- */
 
@@ -207,10 +199,6 @@ function GuidanceTable({
 export default function ExchangeTab() {
   return (
     <>
-      <InfoBanner
-        title="Exchanges recover revenue that returns lose."
-        body="A true same-style exchange keeps the sale. Departments with low exchange rates or high re-return rates are the biggest opportunities."
-      />
       <KpiStrip items={KPIS} cols={4} />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <KindDonut />
