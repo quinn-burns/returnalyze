@@ -192,7 +192,7 @@ function PromoteTable({
                   {r.opportunity}
                 </td>
                 <td className="py-3 pl-3 text-right">
-                  <TakeAction />
+                  <TakeAction context="Exchange" department={r.dept} />
                 </td>
               </tr>
             ))}
@@ -246,7 +246,7 @@ function GuidanceTable({
                   {r.opportunity}
                 </td>
                 <td className="py-3 pl-3 text-right">
-                  <TakeAction />
+                  <TakeAction context="Exchange" department={r.dept} />
                 </td>
               </tr>
             ))}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FilterButton, FilterDropdown, IconButton } from "../overview/Buttons";
+import { SUBMITTED_ACTIONS_KEY, type SubmittedAction } from "../customer/ActionSubmit";
 import CustomizeMenu from "../overview/CustomizeMenu";
 import ActionDetail from "./ActionDetail";
 import CreateActionModal from "./CreateActionModal";
@@ -216,6 +217,35 @@ function Toolbar({ onAddAction }: { onAddAction: () => void }) {
 export default function ActionsContent() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [submitted, setSubmitted] = useState<Card[]>([]);
+
+  // Actions submitted from the Customer insights pages land in "To Do".
+  useEffect(() => {
+    try {
+      const raw: SubmittedAction[] = JSON.parse(
+        localStorage.getItem(SUBMITTED_ACTIONS_KEY) || "[]",
+      );
+      setSubmitted(
+        raw.map((s) => ({
+          id: s.id,
+          kind: "Action" as Kind,
+          title: s.title,
+          desc: s.notes || `Submitted from ${s.context} · ${s.department}`,
+          assignee:
+            (s.owner || "")
+              .split(" ")
+              .map((w) => w[0])
+              .filter(Boolean)
+              .slice(0, 2)
+              .join("") || "—",
+          value: "New",
+        })),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-neutral-0">
       <Header />
@@ -223,21 +253,26 @@ export default function ActionsContent() {
         <FilterBar />
         <Toolbar onAddAction={() => setCreateOpen(true)} />
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {COLUMNS.map((col) => (
-            <div key={col.title} className="flex flex-col gap-4">
-              <h2 className="px-1 text-xl font-semibold text-neutral-800">
-                {col.title} ({col.count})
-              </h2>
-              {col.cards.map((card, i) => (
-                <ActionCard
-                  key={i}
-                  card={card}
-                  status={col.title === "To Do" ? "To do" : col.title}
-                  onSelect={() => setDetailOpen(true)}
-                />
-              ))}
-            </div>
-          ))}
+          {COLUMNS.map((col) => {
+            const cards =
+              col.title === "To Do" ? [...submitted, ...col.cards] : col.cards;
+            const count = col.title === "To Do" ? col.count + submitted.length : col.count;
+            return (
+              <div key={col.title} className="flex flex-col gap-4">
+                <h2 className="px-1 text-xl font-semibold text-neutral-800">
+                  {col.title} ({count})
+                </h2>
+                {cards.map((card, i) => (
+                  <ActionCard
+                    key={`${card.id}-${i}`}
+                    card={card}
+                    status={col.title === "To Do" ? "To do" : col.title}
+                    onSelect={() => setDetailOpen(true)}
+                  />
+                ))}
+              </div>
+            );
+          })}
         </div>
       </div>
       <ActionDetail

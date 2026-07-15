@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useActionModal } from "./ActionSubmit";
 
 // Chart fill colors — official Fuego Returnalyze palette (Figma node 1415:45).
 export const CHART = {
@@ -58,10 +59,12 @@ export function AiInsight({ children }: { children: ReactNode }) {
   );
 }
 
-export function TakeAction() {
+export function TakeAction({ context, department }: { context: string; department: string }) {
+  const { open } = useActionModal();
   return (
     <button
       type="button"
+      onClick={() => open({ context, department })}
       className="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-600 transition-colors hover:border-primary-400 hover:bg-primary-100"
     >
       Take action

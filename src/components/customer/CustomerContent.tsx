@@ -1,15 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { FilterDropdown } from "../overview/Buttons";
+import { ActionModalProvider } from "./ActionSubmit";
 import { AiInsight, TakeAction } from "./parts";
+import {
+  BRAND_OPTS,
+  COUNTRY_OPTS,
+  CATEGORY_OPTS,
+  CUSTOMER_TYPE_OPTS,
+  DEPARTMENT_OPTS,
+  PERIOD_OPTS,
+  FilterSelect,
+} from "./filters";
 import ExchangeTab from "./ExchangeTab";
 import SegmentsTab from "./SegmentsTab";
 import BehavioralFlowTab from "./BehavioralFlowTab";
 
 /* ----------------------------- data ----------------------------- */
-
-const FILTERS = ["All Brands", "All Countries", "All Product Categories"];
 
 const TABS = ["Bracketing", "Exchange", "Segments", "Behavioral Flow"] as const;
 type Tab = (typeof TABS)[number];
@@ -181,19 +188,17 @@ function Header() {
 
 function FilterBar({ tab }: { tab: Tab }) {
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      {FILTERS.map((f) => (
-        <FilterDropdown key={f} label={f} />
-      ))}
+    <div className="flex flex-wrap items-end gap-3">
+      <FilterSelect label="Brand" options={BRAND_OPTS} />
+      <FilterSelect label="Country" options={COUNTRY_OPTS} />
+      <FilterSelect label="Product Category" options={CATEGORY_OPTS} />
       {tab === "Behavioral Flow" ? (
         <>
-          <FilterDropdown label="All Customers" />
-          <FilterDropdown label="All Departments" />
+          <FilterSelect label="Customer Type" options={CUSTOMER_TYPE_OPTS} />
+          <FilterSelect label="1st Purchase Department" options={DEPARTMENT_OPTS} />
         </>
       ) : null}
-      <div className="ml-auto">
-        <FilterDropdown label="Rolling 12 Months" />
-      </div>
+      <FilterSelect label="Period" options={PERIOD_OPTS} />
     </div>
   );
 }
@@ -416,7 +421,7 @@ function ActionTable({
                   {r.opportunity}
                 </td>
                 <td className="py-3 pl-3 text-right">
-                  <TakeAction />
+                  <TakeAction context="Bracketing" department={r.dept} />
                 </td>
               </tr>
             ))}
@@ -464,23 +469,25 @@ function BracketingTab() {
 export default function CustomerContent() {
   const [tab, setTab] = useState<Tab>("Bracketing");
   return (
-    <div className="min-h-screen bg-neutral-0">
-      <Header />
-      <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
-        <FilterBar tab={tab} />
-        <TabBar tab={tab} onChange={setTab} />
-        <p className="-mt-1 text-sm text-neutral-500">{TAB_META[tab].description}</p>
-        <AiInsight>{TAB_META[tab].insight}</AiInsight>
-        {tab === "Bracketing" ? (
-          <BracketingTab />
-        ) : tab === "Exchange" ? (
-          <ExchangeTab />
-        ) : tab === "Segments" ? (
-          <SegmentsTab />
-        ) : (
-          <BehavioralFlowTab />
-        )}
+    <ActionModalProvider>
+      <div className="min-h-screen bg-neutral-0">
+        <Header />
+        <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
+          <FilterBar tab={tab} />
+          <TabBar tab={tab} onChange={setTab} />
+          <p className="-mt-1 text-sm text-neutral-500">{TAB_META[tab].description}</p>
+          <AiInsight>{TAB_META[tab].insight}</AiInsight>
+          {tab === "Bracketing" ? (
+            <BracketingTab />
+          ) : tab === "Exchange" ? (
+            <ExchangeTab />
+          ) : tab === "Segments" ? (
+            <SegmentsTab />
+          ) : (
+            <BehavioralFlowTab />
+          )}
+        </div>
       </div>
-    </div>
+    </ActionModalProvider>
   );
 }

@@ -1,179 +1,213 @@
 "use client";
 
-import { Card } from "./parts";
+import { useState } from "react";
+import { Card, CardHeading } from "./parts";
 
 /* ----------------------------- model ----------------------------- */
 
-const COLORS = {
-  size: "#4169e1",
-  color: "#27cba7",
-  sizeColor: "#1d97ff",
-  noBracket: "#ababab",
-  returnedAll: "#dc2828",
-  keptSome: "#f59f0a",
-  keptAll: "#059467",
-  nextPurchase: "#059467",
-  nextDept: "#8a8a8a",
-};
+const TOTAL = 20806;
 
-type NodeDef = { id: string; label: string; value: number; color: string };
-
-// Column 0 — bracketing type, with split fractions into [returnedAll, keptSome, keptAll]
-const BRACKETING: (NodeDef & { split: [number, number, number] })[] = [
-  { id: "size", label: "Size", value: 5200, color: COLORS.size, split: [0.18, 0.42, 0.4] },
-  { id: "color", label: "Color", value: 4800, color: COLORS.color, split: [0.1, 0.3, 0.6] },
-  { id: "sizeColor", label: "Size + Color", value: 2100, color: COLORS.sizeColor, split: [0.22, 0.45, 0.33] },
-  { id: "noBracket", label: "No Bracketing", value: 8706, color: COLORS.noBracket, split: [0.2, 0.38, 0.42] },
+// split = [Returned All, Kept Some, Kept All]
+const BRACK = [
+  { id: "Size", color: "#4169e1", value: 5200, split: [0.18, 0.42, 0.4] },
+  { id: "Color", color: "#27cba7", value: 4800, split: [0.1, 0.3, 0.6] },
+  { id: "Both", color: "#1d97ff", value: 2100, split: [0.22, 0.45, 0.33] },
+  { id: "No Bracketing", color: "#ababab", value: 8706, split: [0.2, 0.38, 0.42] },
+];
+// back = [came back, did not]
+const OUTCOMES = [
+  { id: "Returned All", color: "#dc2828", idx: 0, back: [0.35, 0.65] },
+  { id: "Kept Some", color: "#f59f0a", idx: 1, back: [0.7, 0.3] },
+  { id: "Kept All", color: "#059467", idx: 2, back: [0.82, 0.18] },
+];
+const DEPTS = [
+  { id: "W Denim", frac: 0.3, color: "#4169e1" },
+  { id: "W Tops", frac: 0.24, color: "#1d97ff" },
+  { id: "Accessories", frac: 0.18, color: "#27cba7" },
+  { id: "Mens", frac: 0.16, color: "#85a1ff" },
+  { id: "Other", frac: 0.12, color: "#ababab" },
 ];
 
-// Column 1 — first-order outcome, split into [nextPurchase, noNextPurchase]
-const OUTCOMES: (NodeDef & { split: [number, number] })[] = [
-  { id: "returnedAll", label: "Returned All", value: 0, color: COLORS.returnedAll, split: [0.35, 0.65] },
-  { id: "keptSome", label: "Kept Some", value: 0, color: COLORS.keptSome, split: [0.7, 0.3] },
-  { id: "keptAll", label: "Kept All", value: 0, color: COLORS.keptAll, split: [0.82, 0.18] },
-];
+type Seg = { id: string; color: string; count: number };
 
-// Column 3 — next department, fractions of the "Next Purchase" node
-const DEPTS: { id: string; label: string; frac: number }[] = [
-  { id: "wDenim", label: "W Denim", frac: 0.3 },
-  { id: "wTops", label: "W Tops", frac: 0.24 },
-  { id: "accessories", label: "Accessories", frac: 0.18 },
-  { id: "mens", label: "Mens", frac: 0.16 },
-  { id: "other", label: "Other", frac: 0.12 },
-];
-
-const LEGEND = [
-  { label: "Size", color: COLORS.size },
-  { label: "Color", color: COLORS.color },
-  { label: "Size + Color", color: COLORS.sizeColor },
-  { label: "No Bracketing", color: COLORS.noBracket },
-  { label: "Returned All", color: COLORS.returnedAll },
-  { label: "Kept Some", color: COLORS.keptSome },
-  { label: "Kept All", color: COLORS.keptAll },
-  { label: "Next Purchase", color: COLORS.nextPurchase },
-];
-
-/* ------------------------- sankey layout ------------------------- */
-
-type LaidNode = NodeDef & { x: number; y: number; h: number };
-type Link = { source: string; target: string; value: number; color: string };
-
-function buildFlow() {
-  const H = 300;
-  const NODE_W = 14;
-  const GAP = 8;
-  const X = [16, 250, 470, 660];
-
-  // Derive outcome + downstream values from the split model.
-  const outcomeVals: Record<string, number> = { returnedAll: 0, keptSome: 0, keptAll: 0 };
-  const links: Link[] = [];
-  BRACKETING.forEach((b) => {
-    (["returnedAll", "keptSome", "keptAll"] as const).forEach((o, i) => {
-      const v = Math.round(b.value * b.split[i]);
-      outcomeVals[o] += v;
-      links.push({ source: b.id, target: o, value: v, color: b.color });
-    });
+function outcomeSegs(brackId?: string): Seg[] {
+  return OUTCOMES.map((o) => {
+    const count = brackId
+      ? (BRACK.find((b) => b.id === brackId)?.value ?? 0) *
+        (BRACK.find((b) => b.id === brackId)?.split[o.idx] ?? 0)
+      : BRACK.reduce((s, b) => s + b.value * b.split[o.idx], 0);
+    return { id: o.id, color: o.color, count: Math.round(count) };
   });
-
-  let nextPurchaseTotal = 0;
-  let noNextTotal = 0;
-  OUTCOMES.forEach((o) => {
-    const total = outcomeVals[o.id];
-    const np = Math.round(total * o.split[0]);
-    const nn = total - np;
-    nextPurchaseTotal += np;
-    noNextTotal += nn;
-    links.push({ source: o.id, target: "nextPurchase", value: np, color: o.color });
-    links.push({ source: o.id, target: "noNext", value: nn, color: o.color });
-  });
-
-  DEPTS.forEach((d) => {
-    links.push({
-      source: "nextPurchase",
-      target: d.id,
-      value: Math.round(nextPurchaseTotal * d.frac),
-      color: COLORS.nextPurchase,
-    });
-  });
-
-  // Global value → pixel scale (tallest column is col0/col1 = 20806).
-  const colTotals = [20806, 20806, nextPurchaseTotal + noNextTotal];
-  const maxTotal = Math.max(...colTotals);
-  const S = (H - GAP * 3) / maxTotal;
-
-  const columns: NodeDef[][] = [
-    BRACKETING.map(({ id, label, value, color }) => ({ id, label, value, color })),
-    OUTCOMES.map((o) => ({ id: o.id, label: o.label, value: outcomeVals[o.id], color: o.color })),
-    [
-      { id: "nextPurchase", label: "Next Purchase", value: nextPurchaseTotal, color: COLORS.nextPurchase },
-      { id: "noNext", label: "No Next Purchase", value: noNextTotal, color: COLORS.noBracket },
-    ],
-    DEPTS.map((d) => ({
-      id: d.id,
-      label: d.label,
-      value: Math.round(nextPurchaseTotal * d.frac),
-      color: COLORS.nextDept,
-    })),
-  ];
-
-  const nodes: Record<string, LaidNode> = {};
-  columns.forEach((col, ci) => {
-    let y = 10;
-    col.forEach((n) => {
-      const h = Math.max(2, n.value * S);
-      nodes[n.id] = { ...n, x: X[ci], y, h };
-      y += h + GAP;
-    });
-  });
-
-  // Stack ribbon slots on both ends.
-  const sUsed: Record<string, number> = {};
-  const tUsed: Record<string, number> = {};
-  const ribbons = links.map((l) => {
-    const s = nodes[l.source];
-    const t = nodes[l.target];
-    const h = l.value * S;
-    const sy = s.y + (sUsed[l.source] ?? 0);
-    const ty = t.y + (tUsed[l.target] ?? 0);
-    sUsed[l.source] = (sUsed[l.source] ?? 0) + h;
-    tUsed[l.target] = (tUsed[l.target] ?? 0) + h;
-    const x1 = s.x + NODE_W;
-    const x2 = t.x;
-    const mx = (x1 + x2) / 2;
-    return {
-      key: `${l.source}-${l.target}`,
-      color: l.color,
-      d: `M${x1},${sy} C${mx},${sy} ${mx},${ty} ${x2},${ty} L${x2},${ty + h} C${mx},${ty + h} ${mx},${sy + h} ${x1},${sy + h} Z`,
-    };
-  });
-
-  return { nodes: Object.values(nodes), ribbons, NODE_W, H, width: X[3] + NODE_W + 90 };
 }
 
-function Sankey() {
-  const { nodes, ribbons, NODE_W, H, width } = buildFlow();
+function backSegs(brackId?: string, outcomeId?: string): Seg[] {
+  const outs = outcomeSegs(brackId).filter((o) => !outcomeId || o.id === outcomeId);
+  let back = 0;
+  let none = 0;
+  outs.forEach((o) => {
+    const def = OUTCOMES.find((x) => x.id === o.id);
+    if (!def) return;
+    back += o.count * def.back[0];
+    none += o.count * def.back[1];
+  });
+  return [
+    { id: "Came back", color: "#059467", count: Math.round(back) },
+    { id: "No repeat purchase", color: "#ababab", count: Math.round(none) },
+  ];
+}
+
+const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K` : String(n));
+
+/* --------------------------- stage bar --------------------------- */
+
+function StageBar({
+  title,
+  note,
+  segments,
+  selected,
+  onSelect,
+}: {
+  title: string;
+  note?: string;
+  segments: Seg[];
+  selected?: string;
+  onSelect?: (id: string | undefined) => void;
+}) {
+  const total = segments.reduce((s, x) => s + x.count, 0) || 1;
+  const interactive = Boolean(onSelect);
   return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${width} ${H + 20}`} className="w-full min-w-[720px]" role="img" aria-label="Customer journey flow">
-        {ribbons.map((r) => (
-          <path key={r.key} d={r.d} fill={r.color} fillOpacity={0.22} />
-        ))}
-        {nodes.map((n) => (
-          <g key={n.id}>
-            <rect x={n.x} y={n.y} width={NODE_W} height={n.h} rx={2} fill={n.color} />
-            <text
-              x={n.x + NODE_W + 4}
-              y={n.y + n.h / 2}
-              dominantBaseline="middle"
-              fontSize="9"
-              fill="#454545"
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-neutral-800">
+          {title}
+          {note ? <span className="ml-1.5 text-xs font-normal text-neutral-400">{note}</span> : null}
+        </span>
+        {selected && onSelect ? (
+          <button
+            type="button"
+            onClick={() => onSelect(undefined)}
+            className="text-xs font-medium text-primary-600 hover:text-primary-700"
+          >
+            Clear
+          </button>
+        ) : null}
+      </div>
+      <div className="flex h-11 w-full gap-1">
+        {segments.map((s) => {
+          const dim = selected != null && selected !== s.id;
+          const width = `${Math.max((s.count / total) * 100, 3)}%`;
+          const inner = (
+            <>
+              <span className="truncate text-[11px] font-semibold leading-tight">{s.id}</span>
+              <span className="truncate text-[10px] leading-tight opacity-90">
+                {fmt(s.count)} · {Math.round((s.count / total) * 100)}%
+              </span>
+            </>
+          );
+          const base =
+            "flex flex-col items-start justify-center overflow-hidden rounded-md px-2 text-left text-white transition-opacity";
+          return interactive ? (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => onSelect?.(selected === s.id ? undefined : s.id)}
+              style={{ width, backgroundColor: s.color }}
+              className={`${base} ${dim ? "opacity-30 hover:opacity-60" : "opacity-100"}`}
             >
-              {n.label}
-            </text>
-          </g>
-        ))}
-      </svg>
+              {inner}
+            </button>
+          ) : (
+            <div key={s.id} style={{ width, backgroundColor: s.color }} className={base}>
+              {inner}
+            </div>
+          );
+        })}
+      </div>
     </div>
+  );
+}
+
+/* ----------------------- journey explorer ------------------------ */
+
+function JourneyExplorer() {
+  const [sel, setSel] = useState<{ bracketing?: string; outcome?: string; cameBack?: string }>({});
+
+  const stage1: Seg[] = BRACK.map((b) => ({ id: b.id, color: b.color, count: b.value }));
+  const stage2 = outcomeSegs(sel.bracketing);
+  const stage3 = backSegs(sel.bracketing, sel.outcome);
+  const cameBackPop =
+    sel.cameBack === "No repeat purchase"
+      ? 0
+      : (stage3.find((s) => s.id === "Came back")?.count ?? 0);
+  const stage4: Seg[] = DEPTS.map((d) => ({
+    id: d.id,
+    color: d.color,
+    count: Math.round(cameBackPop * d.frac),
+  }));
+
+  const pathCount = sel.cameBack
+    ? (stage3.find((s) => s.id === sel.cameBack)?.count ?? 0)
+    : sel.outcome
+      ? (stage2.find((s) => s.id === sel.outcome)?.count ?? 0)
+      : sel.bracketing
+        ? (BRACK.find((b) => b.id === sel.bracketing)?.value ?? 0)
+        : TOTAL;
+
+  const crumbs = [sel.bracketing, sel.outcome, sel.cameBack].filter(Boolean) as string[];
+
+  return (
+    <Card>
+      <CardHeading
+        title="Customer journey explorer"
+        subtitle="Click any segment to trace that group forward — each stage below re-splits for your selection."
+      />
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-primary-50 px-3 py-2">
+        <p className="text-sm text-neutral-700">
+          <span className="font-bold text-neutral-800">{fmt(pathCount)}</span> customers
+          <span className="text-neutral-500">
+            {" "}
+            ({Math.round((pathCount / TOTAL) * 100)}% of {fmt(TOTAL)})
+          </span>
+          {crumbs.length ? (
+            <span className="text-neutral-500"> · {crumbs.join(" → ")}</span>
+          ) : (
+            <span className="text-neutral-500"> · all customers</span>
+          )}
+        </p>
+        {crumbs.length ? (
+          <button
+            type="button"
+            onClick={() => setSel({})}
+            className="text-xs font-medium text-primary-600 hover:text-primary-700"
+          >
+            Reset
+          </button>
+        ) : null}
+      </div>
+
+      <div className="mt-4 flex flex-col gap-4">
+        <StageBar
+          title="1 · Bracketing type"
+          segments={stage1}
+          selected={sel.bracketing}
+          onSelect={(v) => setSel({ bracketing: v })}
+        />
+        <StageBar
+          title="2 · First-order outcome"
+          segments={stage2}
+          selected={sel.outcome}
+          onSelect={(v) => setSel((p) => ({ bracketing: p.bracketing, outcome: v }))}
+        />
+        <StageBar
+          title="3 · Did they come back?"
+          segments={stage3}
+          selected={sel.cameBack}
+          onSelect={(v) => setSel((p) => ({ bracketing: p.bracketing, outcome: p.outcome, cameBack: v }))}
+        />
+        <StageBar title="4 · Next department" note="of those who came back" segments={stage4} />
+      </div>
+    </Card>
   );
 }
 
@@ -229,28 +263,28 @@ function AllPaths() {
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
-            <tr className="text-neutral-500">
-              <th className="py-2 pr-3 font-normal">Bracketing</th>
-              <th className="px-3 py-2 font-normal">First Order</th>
-              <th className="px-3 py-2 font-normal">Next Purchase?</th>
-              <th className="px-3 py-2 font-normal">Next Dept</th>
-              <th className="px-3 py-2 text-right font-normal">Customers</th>
-              <th className="px-3 py-2 text-right font-normal">Net Value</th>
-              <th className="py-2 pl-3 text-right font-normal">Per Cust.</th>
+            <tr className="border-b border-neutral-200 text-neutral-500">
+              <th className="whitespace-nowrap py-2 pr-3 font-normal">Bracketing</th>
+              <th className="whitespace-nowrap px-3 py-2 font-normal">First Order</th>
+              <th className="whitespace-nowrap px-3 py-2 font-normal">Next Purchase?</th>
+              <th className="whitespace-nowrap px-3 py-2 font-normal">Next Dept</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Customers</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Net Value</th>
+              <th className="whitespace-nowrap py-2 pl-3 text-right font-normal">Per Cust.</th>
             </tr>
           </thead>
           <tbody>
             {PATHS.map((p, i) => (
-              <tr key={i} className="border-t border-primary-50">
-                <td className="py-2.5 pr-3 font-medium text-neutral-800">{p.bracketing}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{p.firstOrder}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{p.nextPurchase}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{p.nextDept}</td>
-                <td className="px-3 py-2.5 text-right text-neutral-700">{p.customers}</td>
-                <td className="px-3 py-2.5 text-right">
+              <tr key={i} className="border-b border-primary-50 last:border-b-0">
+                <td className="whitespace-nowrap py-2.5 pr-3 font-medium text-neutral-800">{p.bracketing}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-neutral-700">{p.firstOrder}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-neutral-700">{p.nextPurchase}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-neutral-700">{p.nextDept}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-right text-neutral-700">{p.customers}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-right">
                   <ValuePill text={p.netValue} positive={p.positive} />
                 </td>
-                <td className="py-2.5 pl-3 text-right">
+                <td className="whitespace-nowrap py-2.5 pl-3 text-right">
                   <ValuePill text={p.perCust} positive={p.positive} />
                 </td>
               </tr>
@@ -267,33 +301,7 @@ function AllPaths() {
 export default function BehavioralFlowTab() {
   return (
     <>
-      <Card>
-        <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold text-neutral-800">Behavioral flow</h2>
-          <p className="text-xs text-neutral-500">20,806 customers · rolling 12 months</p>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
-          {["Bracketing Type", "First Order", "Next Purchase?", "Next Dept"].map((s) => (
-            <span key={s} className="text-[11px] font-medium text-neutral-500">
-              {s}
-            </span>
-          ))}
-        </div>
-        <div className="mt-2">
-          <Sankey />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-          {LEGEND.map((l) => (
-            <span key={l.label} className="flex items-center gap-1.5 text-[10px] text-neutral-600">
-              <span className="size-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-              {l.label}
-            </span>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-neutral-500">
-          Hover a flow or node to see customers, total value, and average value.
-        </p>
-      </Card>
+      <JourneyExplorer />
       <AllPaths />
     </>
   );
