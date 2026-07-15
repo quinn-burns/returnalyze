@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FilterDropdown } from "../overview/Buttons";
-import { AiInsight } from "./parts";
+import { AiInsight, TakeAction } from "./parts";
 import ExchangeTab from "./ExchangeTab";
 import SegmentsTab from "./SegmentsTab";
 import BehavioralFlowTab from "./BehavioralFlowTab";
@@ -21,8 +21,8 @@ const TAB_META: Record<Tab, { description: string; insight: React.ReactNode }> =
     insight: (
       <>
         Color bracketing is almost always profitable — color-bracketed orders generate{" "}
-        <span className="font-semibold text-neutral-800">$20–50 more revenue per order</span> than
-        non-bracketed. Size bracketing, by contrast, breaks even or loses money across your top
+        <span className="font-semibold text-neutral-800">$20–50 more revenue per order</span>{" "}
+        than non-bracketed. Size bracketing, by contrast, breaks even or loses money across your top
         categories, so it&rsquo;s the lever with the most downside to manage.
       </>
     ),
@@ -77,12 +77,21 @@ const KPIS: { label: string; value: string; change: string; trend: Trend }[] = [
   { label: "% Orders Bracketed on Color", value: "4.33%", change: "↓ 0.2 pts vs LY", trend: "down" },
 ];
 
-// One record per bracketing type, ordered best → worst profit per order.
+// Share of bracketed orders that involve each dimension. Orders can bracket on
+// both size and color, so these shares overlap and add to more than 100%.
+const BRACKETED_TOTAL = "171K";
+const TYPE_BREAKDOWN = [
+  { label: "Size", pct: 65, orders: "111K", color: "#d13636" },
+  { label: "Color", pct: 51, orders: "87K", color: "#4169e1" },
+  { label: "Other", pct: 2, orders: "3K", color: "#94a3b8" },
+];
+
+// Profit and outcome per bracketing type, ordered best → worst profit per order.
 // keep = [kept all, kept some, returned all] as percentages.
 const BRACKETING_TYPES = [
-  { label: "Color", orders: "4.8K", pct: 28, profit: 44, keep: [90, 8, 2] },
-  { label: "Both", orders: "1.2K", pct: 7, profit: 21, keep: [78, 15, 7] },
-  { label: "Size", orders: "11K", pct: 65, profit: -7, keep: [10, 50, 40] },
+  { label: "Color", orders: "87K", profit: 44, keep: [90, 8, 2] },
+  { label: "Both", orders: "20K", profit: 21, keep: [78, 15, 7] },
+  { label: "Size", orders: "111K", profit: -7, keep: [10, 50, 40] },
 ];
 const PROFIT_MAX = 50; // scale for the diverging profit bars
 
@@ -238,6 +247,36 @@ function KpiRow() {
   );
 }
 
+function TypeBreakdown() {
+  return (
+    <Card>
+      <CardHeading
+        title="What kind of bracketing?"
+        subtitle={`Share of the ${BRACKETED_TOTAL} bracketed orders that involve each dimension.`}
+      />
+      <div className="mt-4 flex flex-col gap-3">
+        {TYPE_BREAKDOWN.map((t) => (
+          <div key={t.label} className="flex items-center gap-3">
+            <span className="w-12 shrink-0 text-sm font-medium text-neutral-800">{t.label}</span>
+            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100">
+              <div
+                className="h-5 rounded-full"
+                style={{ width: `${t.pct}%`, backgroundColor: t.color }}
+              />
+            </div>
+            <span className="w-28 shrink-0 text-right text-xs text-neutral-500">
+              <span className="font-semibold text-neutral-800">{t.pct}%</span> · {t.orders} orders
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] leading-4 text-neutral-400">
+        Orders can be bracketed on both size and color, so shares add to more than 100%.
+      </p>
+    </Card>
+  );
+}
+
 function DivergingProfitBar({ value }: { value: number }) {
   const pct = Math.min(Math.abs(value) / PROFIT_MAX, 1) * 100;
   const positive = value >= 0;
@@ -270,9 +309,7 @@ function BracketingProfit() {
           <div key={t.label} className="flex items-center gap-3">
             <div className="w-16 shrink-0">
               <p className="text-sm font-medium text-neutral-800">{t.label}</p>
-              <p className="text-[11px] text-neutral-500">
-                {t.orders} · {t.pct}%
-              </p>
+              <p className="text-[11px] text-neutral-500">{t.orders} orders</p>
             </div>
             <div className="min-w-0 flex-1">
               <DivergingProfitBar value={t.profit} />
@@ -348,41 +385,38 @@ function ActionTable({
   negative?: boolean;
 }) {
   return (
-    <Card className="min-w-0 flex-1">
+    <Card>
       <CardHeading title={title} subtitle={subtitle} />
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[520px] text-left text-sm">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="text-neutral-500">
-              <th className="py-2 pr-3 font-normal">Department</th>
-              <th className="px-3 py-2 font-normal">Revenue</th>
-              <th className="px-3 py-2 font-normal">{pctLabel}</th>
-              <th className="px-3 py-2 font-normal">Orders</th>
-              <th className="px-3 py-2 font-normal">Δ Profit / Order</th>
-              <th className="px-3 py-2 font-normal">Rev. Opportunity</th>
+            <tr className="border-b border-neutral-200 text-neutral-500">
+              <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Revenue</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Orders</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Δ Profit / Order</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Rev. Opportunity</th>
               <th className="py-2 pl-3 font-normal" />
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.dept} className="border-t border-primary-50">
-                <td className="py-2.5 pr-3 font-medium text-neutral-800">{r.dept}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{r.revenue}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{r.pct}</td>
-                <td className="px-3 py-2.5 text-neutral-700">{r.orders}</td>
+              <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
+                <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.pct}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.orders}</td>
                 <td
-                  className={`px-3 py-2.5 font-semibold ${negative ? "text-danger-600" : "text-success-600"}`}
+                  className={`whitespace-nowrap px-3 py-3 text-right font-semibold ${negative ? "text-danger-600" : "text-success-600"}`}
                 >
                   {r.delta}
                 </td>
-                <td className="px-3 py-2.5 font-semibold text-neutral-800">{r.opportunity}</td>
-                <td className="py-2.5 pl-3">
-                  <button
-                    type="button"
-                    className="whitespace-nowrap text-sm font-medium text-primary-600 hover:text-primary-700"
-                  >
-                    Take action →
-                  </button>
+                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-neutral-800">
+                  {r.opportunity}
+                </td>
+                <td className="py-3 pl-3 text-right">
+                  <TakeAction />
                 </td>
               </tr>
             ))}
@@ -398,23 +432,22 @@ function BracketingTab() {
     <>
       <KpiRow />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <TypeBreakdown />
         <BracketingProfit />
-        <BracketingOutcomes />
       </div>
-      <div className="flex flex-col gap-5 lg:flex-row">
-        <ActionTable
-          title="Promote size bracketing"
-          subtitle="Profitable size bracketing — prioritized by revenue opportunity (→1.05×)"
-          pctLabel="% Orders Brkt. Size"
-          rows={PROMOTE_SIZE}
-        />
-        <ActionTable
-          title="Promote color bracketing"
-          subtitle="Profitable color bracketing — prioritized by revenue opportunity (→1.05×)"
-          pctLabel="% Orders Brkt. Color"
-          rows={PROMOTE_COLOR}
-        />
-      </div>
+      <BracketingOutcomes />
+      <ActionTable
+        title="Promote size bracketing"
+        subtitle="Profitable size bracketing — prioritized by revenue opportunity (→1.05×)"
+        pctLabel="% Orders Brkt. Size"
+        rows={PROMOTE_SIZE}
+      />
+      <ActionTable
+        title="Promote color bracketing"
+        subtitle="Profitable color bracketing — prioritized by revenue opportunity (→1.05×)"
+        pctLabel="% Orders Brkt. Color"
+        rows={PROMOTE_COLOR}
+      />
       <ActionTable
         title="Discourage size bracketing"
         subtitle="Unprofitable size bracketing — opportunity from reducing (→0.95×)"

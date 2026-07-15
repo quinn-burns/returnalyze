@@ -50,9 +50,18 @@ export function TakeAction() {
   return (
     <button
       type="button"
-      className="whitespace-nowrap text-sm font-medium text-primary-600 hover:text-primary-700"
+      className="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-600 transition-colors hover:border-primary-400 hover:bg-primary-100"
     >
-      Take action →
+      Take action
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M5 12h14M13 6l6 6-6 6"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </button>
   );
 }
