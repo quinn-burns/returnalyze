@@ -20,6 +20,7 @@ const MAIN_ITEMS: NavItem[] = [
   { label: "Customer", icon: "customer", href: "/customer" },
   { label: "Data Explorer", icon: "database", href: "/data-explorer" },
   { label: "Reports", icon: "assignment", href: "/reports" },
+  { label: "Sustainability", icon: "sustainability", href: "/sustainability" },
 ];
 
 const UTILITY_ITEMS: NavItem[] = [
