@@ -92,17 +92,29 @@ body {
   background: var(--color-neutral-0);
 }
 
-/* Slim scrollbar for the sidebar nav (and any opt-in scroll area). */
+/* Slim scrollbars site-wide (5px); the sidebar nav is slimmer still (3px). */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: 9999px;
+}
 .thin-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) transparent;
 }
 .thin-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-.thin-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+  width: 3px;
+  height: 3px;
 }
 .thin-scrollbar::-webkit-scrollbar-thumb {
   background-color: var(--color-neutral-300);
