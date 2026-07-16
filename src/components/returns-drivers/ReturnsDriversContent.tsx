@@ -193,7 +193,7 @@ export default function ReturnsDriversContent() {
   return (
     <div className="min-h-screen bg-neutral-0">
       <Header />
-      <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
+      <div className="page-enter flex flex-col gap-5 px-4 pb-10 pt-3.5">
         <FilterBar />
         <ResultsRow />
         <TabBar />

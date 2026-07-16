@@ -92,38 +92,68 @@ body {
   background: var(--color-neutral-0);
 }
 
-/* Main page scrollbar (5px). Inner scroll areas keep the browser default. */
-html {
+/* Slim styled scrollbars at distinct sizes: inner areas 8px, main page 5px,
+ * sidebar nav 2px. The rounded neutral thumb is shared by all. */
+* {
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: 9999px;
 }
 html::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
-html::-webkit-scrollbar-track {
-  background: transparent;
-}
-html::-webkit-scrollbar-thumb {
-  background-color: var(--color-neutral-300);
-  border-radius: 9999px;
-}
-
-/* Sidebar nav — slimmer 2px, opt-in via the class. */
-.thin-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-neutral-300) transparent;
-}
 .thin-scrollbar::-webkit-scrollbar {
   width: 2px;
   height: 2px;
 }
-.thin-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+
+/* Gentle staggered fade-up of a page's sections the first time it opens. */
+@keyframes page-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--color-neutral-300);
-  border-radius: 9999px;
+.page-enter > * {
+  animation: page-fade-up 0.5s ease-out both;
+}
+.page-enter > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.page-enter > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.page-enter > *:nth-child(3) {
+  animation-delay: 0.14s;
+}
+.page-enter > *:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.page-enter > *:nth-child(5) {
+  animation-delay: 0.26s;
+}
+.page-enter > *:nth-child(n + 6) {
+  animation-delay: 0.32s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter > * {
+    animation: none;
+  }
 }
 
 /*

@@ -153,7 +153,7 @@ function KpiRow() {
 
 function AiSummary() {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-0 p-4">
+    <div className="rounded-lg border border-primary-100 bg-primary-50 p-4">
       <div className="flex items-center gap-1.5">
         <span className="flex items-center justify-center rounded-full bg-gradient-to-b from-[#27cba7] to-[#0b61dd] p-[3.5px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -251,7 +251,7 @@ export default function OverviewContent() {
   return (
     <div className="min-h-screen bg-neutral-0">
       <Header />
-      <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
+      <div className="page-enter flex flex-col gap-5 px-4 pb-10 pt-3.5">
         <FilterBar />
         <ReturnsDriversRow />
         <KpiRow />
