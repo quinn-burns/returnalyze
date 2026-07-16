@@ -54,7 +54,7 @@ const TAB_META: Record<Tab, { description: string; insight: React.ReactNode }> =
       "Actionable customer groups surfaced from return behavior — ready to filter by loyalty tier and export.",
     insight: (
       <>
-        Your <span className="font-semibold text-neutral-800">836 unprofitable customers</span> alone
+        Your <span className="font-semibold text-neutral-800">836 unprofitable customers</span>{" "}alone
         account for $1.5M in return revenue at a 48% return rate. Overlaying them with the high
         return-rate and likely-reseller segments gives you a targeted list to act on before the cost
         compounds.
@@ -66,7 +66,7 @@ const TAB_META: Record<Tab, { description: string; insight: React.ReactNode }> =
       "The full journey from how customers bracket, through what they keep, to whether they come back and what they buy next.",
     insight: (
       <>
-        Customers who <span className="font-semibold text-neutral-800">keep all</span> of a bracketed
+        Customers who <span className="font-semibold text-neutral-800">keep all</span>{" "}of a bracketed
         order are far more valuable downstream — they repurchase at high rates and drive most net
         value into W Denim and W Tops. Those who return everything and don&rsquo;t come back are the
         clearest early churn signal to intervene on.

@@ -110,7 +110,7 @@ function MissionBanner() {
         </span>
         <h2 className="text-xl font-bold text-success-700">Leave It Better</h2>
       </div>
-      <p className="mt-2 max-w-[900px] text-sm leading-6 text-neutral-700">
+      <p className="mt-2 w-full text-sm leading-6 text-neutral-700">
         Arc&rsquo;teryx is committed to halving its environmental footprint and growing its positive
         social impact — with science-based climate targets validated by the SBTi. Returns are a
         material part of that footprint, so every avoided return keeps product in use and carbon out
@@ -330,10 +330,10 @@ export default function SustainabilityContent() {
           <MissionBanner />
           <AiInsight>
             Returns generated an estimated{" "}
-            <span className="font-semibold text-neutral-800">1,240 t CO₂e</span> this period — 63% of
+            <span className="font-semibold text-neutral-800">1,240 t CO₂e</span>{" "}this period — 63% of
             it from return shipping alone. Bringing Footwear&rsquo;s size bracketing down to the
             category average would avoid roughly{" "}
-            <span className="font-semibold text-neutral-800">180 t CO₂e a year</span> (about 39 gas
+            <span className="font-semibold text-neutral-800">180 t CO₂e a year</span>{" "}(about 39 gas
             cars) and closes 4 points of the gap to your 2030 Scope 3 target.
           </AiInsight>
           <KpiStrip items={KPIS} cols={5} />
