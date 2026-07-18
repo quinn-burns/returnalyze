@@ -143,7 +143,7 @@ function Pill({ change, trend }: { change: string; trend: Trend }) {
   const styles: Record<Trend, string> = {
     up: "bg-success-50 text-success-600",
     down: "bg-success-50 text-success-600",
-    flat: "bg-neutral-100 text-neutral-500",
+    flat: "bg-neutral-100 text-neutral-600",
   };
   return (
     <span
@@ -171,7 +171,7 @@ function CardHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="flex flex-col gap-1">
       <h2 className="text-base font-semibold text-neutral-800">{title}</h2>
-      <p className="text-xs text-neutral-500">{subtitle}</p>
+      <p className="text-xs text-neutral-600">{subtitle}</p>
     </div>
   );
 }
@@ -182,8 +182,8 @@ function Header() {
   return (
     <header className="flex flex-wrap items-start justify-between gap-4 bg-neutral-0 px-4 py-6">
       <div className="flex flex-col justify-center">
-        <h1 className="text-[36px] font-bold leading-tight text-neutral-800">Customer</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-[36px] font-bold leading-tight text-neutral-800">Customers</h1>
+        <p className="text-sm text-neutral-600">
           Understand customer behavior including bracketing, exchanges, and returns by department
         </p>
       </div>
@@ -228,7 +228,7 @@ function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
                   className={
                     active
                       ? "whitespace-nowrap text-[13px] font-semibold text-primary-600"
-                      : "whitespace-nowrap text-[13px] font-medium text-neutral-500"
+                      : "whitespace-nowrap text-[13px] font-medium text-neutral-600"
                   }
                 >
                   {t}
@@ -248,7 +248,7 @@ function KpiRow() {
     <div className="grid grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-0 sm:grid-cols-3 lg:grid-cols-5">
       {KPIS.map((kpi) => (
         <div key={kpi.label} className="flex flex-col gap-1.5 p-4">
-          <p className="text-xs text-neutral-500">{kpi.label}</p>
+          <p className="text-xs text-neutral-600">{kpi.label}</p>
           <p className="text-[28px] font-bold leading-[34px] text-neutral-800">{kpi.value}</p>
           <Pill change={kpi.change} trend={kpi.trend} />
         </div>
@@ -275,13 +275,13 @@ function TypeBreakdown() {
                 style={{ width: `${t.pct}%`, backgroundColor: t.color }}
               />
             </div>
-            <span className="w-28 shrink-0 text-right text-xs text-neutral-500">
+            <span className="w-28 shrink-0 text-right text-xs text-neutral-600">
               <span className="font-semibold text-neutral-800">{t.pct}%</span> · {t.orders} orders
             </span>
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11px] leading-4 text-neutral-400">
+      <p className="mt-3 text-[11px] leading-4 text-neutral-600">
         Orders can be bracketed on both size and color, so shares add to more than 100%.
       </p>
     </Card>
@@ -320,7 +320,7 @@ function BracketingProfit() {
           <div key={t.label} className="flex items-center gap-3">
             <div className="w-16 shrink-0">
               <p className="text-sm font-medium text-neutral-800">{t.label}</p>
-              <p className="text-[11px] text-neutral-500">{t.orders} orders</p>
+              <p className="text-[11px] text-neutral-600">{t.orders} orders</p>
             </div>
             <div className="min-w-0 flex-1">
               <DivergingProfitBar value={t.profit} />
@@ -335,7 +335,7 @@ function BracketingProfit() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-center text-[10px] text-neutral-400">
+      <p className="mt-3 text-center text-[10px] text-neutral-600">
         Profit per order relative to a $0 break-even line
       </p>
     </Card>
@@ -364,7 +364,7 @@ function BracketingOutcomes() {
             <div key={t.label} className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-neutral-800">{t.label}</span>
-                <span className="text-[11px] text-neutral-500">
+                <span className="text-[11px] text-neutral-600">
                   <span className="font-semibold text-neutral-700">{kept}% kept</span> ·{" "}
                   {t.keep[2]}% returned
                 </span>
@@ -401,7 +401,7 @@ function ActionTable({
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-neutral-500">
+            <tr className="border-b border-neutral-200 text-neutral-600">
               <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Revenue</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>
@@ -481,7 +481,7 @@ export default function CustomerContent() {
         <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
           <FilterBar tab={tab} />
           <TabBar tab={tab} onChange={setTab} />
-          <p className="-mt-1 text-sm text-neutral-500">{TAB_META[tab].description}</p>
+          <p className="-mt-1 text-sm text-neutral-600">{TAB_META[tab].description}</p>
           <AiInsight>{TAB_META[tab].insight}</AiInsight>
           {tab === "Bracketing" ? (
             <BracketingTab />

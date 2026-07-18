@@ -67,7 +67,7 @@ export function CardHeading({
     <div className="flex items-start justify-between gap-3">
       <div className="flex flex-col gap-1">
         <h2 className="text-base font-semibold text-neutral-800">{title}</h2>
-        {subtitle ? <p className="text-xs text-neutral-500">{subtitle}</p> : null}
+        {subtitle ? <p className="text-xs text-neutral-600">{subtitle}</p> : null}
       </div>
       {action}
     </div>
@@ -190,7 +190,7 @@ export function Donut({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-lg font-bold text-neutral-800">{centerTop}</span>
-        <span className="text-[10px] text-neutral-500">{centerBottom}</span>
+        <span className="text-[10px] text-neutral-600">{centerBottom}</span>
       </div>
     </div>
   );
@@ -214,9 +214,9 @@ export function KpiStrip({
     <div className={`grid grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-0 ${COLS[cols]}`}>
       {items.map((kpi) => (
         <div key={kpi.label} className="flex flex-col gap-1 p-4">
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-neutral-600">
             {kpi.label}
-            {kpi.sub ? <span className="block text-[10px] text-neutral-400">{kpi.sub}</span> : null}
+            {kpi.sub ? <span className="block text-[10px] text-neutral-600">{kpi.sub}</span> : null}
           </p>
           <p className="text-[26px] font-bold leading-[32px] text-neutral-800">{kpi.value}</p>
         </div>

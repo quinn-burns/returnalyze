@@ -17,7 +17,7 @@ const MAIN_ITEMS: NavItem[] = [
   { label: "Actions", icon: "lists", href: "/actions" },
   { label: "My Workspace", icon: "team-dashboard", href: "/workspace" },
   { label: "Products", icon: "shopping-bag", href: "/products" },
-  { label: "Customer", icon: "customer", href: "/customer" },
+  { label: "Customers", icon: "customer", href: "/customer" },
   { label: "Data Explorer", icon: "database", href: "/data-explorer" },
   { label: "Reports", icon: "assignment", href: "/reports" },
   { label: "Sustainability", icon: "sustainability", href: "/sustainability" },
@@ -123,14 +123,14 @@ function AiCreditUsage({ collapsed }: { collapsed?: boolean }) {
             <div className="flex items-center gap-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/nav/sparkle.svg" alt="" className="size-4" />
-              <span className="text-[12px] text-neutral-500">AI credit usage</span>
+              <span className="text-[12px] text-neutral-600">AI credit usage</span>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/nav/info.svg" alt="More info" className="size-4" />
           </div>
           <div className="flex items-center gap-0.5 text-[12px] leading-none">
             <span className="font-bold text-neutral-800">9,700</span>
-            <span className="font-semibold text-neutral-500">/ 12,500</span>
+            <span className="font-semibold text-neutral-600">/ 12,500</span>
           </div>
           <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-100">
             <div
@@ -296,7 +296,11 @@ export default function Sidebar() {
               onNavigate={collapseOverlay}
             />
           ))}
-          <div className="mt-2 flex w-full shrink-0 flex-col gap-2 border-t border-neutral-200 pt-4">
+        </nav>
+
+        {/* Pinned footer — utility links, AI credits and brand logo stay at the bottom */}
+        <div className="flex shrink-0 flex-col gap-4 border-t border-neutral-200 pt-4">
+          <div className="flex w-full flex-col gap-2">
             {UTILITY_ITEMS.map((item) => (
               <NavLink
                 key={item.label}
@@ -306,10 +310,7 @@ export default function Sidebar() {
               />
             ))}
           </div>
-        </nav>
 
-        {/* Pinned footer — AI credits + brand logo stay at the bottom */}
-        <div className="flex shrink-0 flex-col gap-4">
           <AiCreditUsage collapsed={showCollapsed} />
 
           {showCollapsed ? (

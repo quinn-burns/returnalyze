@@ -302,7 +302,7 @@ function SegmentImpact({ segments }: { segments: Segment[] }) {
                 style={{ width: `${(r.value / max) * 100}%` }}
               />
             </div>
-            <span className="w-52 shrink-0 text-right text-xs text-neutral-500">
+            <span className="w-52 shrink-0 text-right text-xs text-neutral-600">
               <span className="font-semibold text-neutral-800">{r.revenue}</span> · {r.customers}{" "}
               cust · {r.rate} rate
             </span>
@@ -319,7 +319,7 @@ function SegmentSection({ segment }: { segment: Segment }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-bold text-neutral-800">{segment.name}</h2>
-          <p className="text-xs text-neutral-500">{segment.thresholds}</p>
+          <p className="text-xs text-neutral-600">{segment.thresholds}</p>
         </div>
         <ExportButton />
       </div>
@@ -329,7 +329,7 @@ function SegmentSection({ segment }: { segment: Segment }) {
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-neutral-500">
+            <tr className="border-b border-neutral-200 text-neutral-600">
               <th className="whitespace-nowrap py-2 pr-3 font-normal">Customer ID</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Revenue</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Return Revenue</th>
@@ -368,17 +368,17 @@ export default function SegmentsTab() {
   return (
     <>
       <div className="flex flex-wrap items-end gap-4">
-        <label className="flex flex-col gap-1 text-xs text-neutral-500">
+        <label className="flex flex-col gap-1 text-xs text-neutral-600">
           Segments
           <SegmentSelect selected={selected} onToggle={toggle} />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-neutral-500">
+        <label className="flex flex-col gap-1 text-xs text-neutral-600">
           Loyalty Tier
           <TierSelect />
         </label>
       </div>
       {shown.length === 0 ? (
-        <Card className="flex min-h-[160px] items-center justify-center text-sm text-neutral-500">
+        <Card className="flex min-h-[160px] items-center justify-center text-sm text-neutral-600">
           Select at least one segment to display.
         </Card>
       ) : (

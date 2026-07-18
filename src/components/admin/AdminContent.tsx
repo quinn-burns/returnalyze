@@ -303,18 +303,18 @@ function AiCreditsTab() {
       <div className="flex gap-4">
         <div className="flex flex-1 flex-col gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-4">
           <div className="flex items-center gap-1">
-            <span className="text-xs text-neutral-500">Total credit usage</span>
+            <span className="text-xs text-neutral-600">Total credit usage</span>
             <InfoIcon />
           </div>
           <p className="text-[28px] leading-tight">
             <span className="font-bold text-neutral-800">5,000 used</span>{" "}
-            <span className="text-neutral-400">/ 12,500 total</span>
+            <span className="text-neutral-600">/ 12,500 total</span>
           </p>
           <ProgressBar pct={40} className="w-full" />
         </div>
         <div className="flex w-[424px] shrink-0 flex-col gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-500">Plan details</span>
+            <span className="text-xs text-neutral-600">Plan details</span>
             <a
               href="#"
               className="flex items-center gap-1 text-sm font-medium text-primary-600 underline"
@@ -326,9 +326,9 @@ function AiCreditsTab() {
           <div className="flex items-end justify-between">
             <p className="text-2xl leading-tight">
               <span className="font-bold text-neutral-800">12,500 credits</span>{" "}
-              <span className="text-sm text-neutral-500">/ Year</span>
+              <span className="text-sm text-neutral-600">/ Year</span>
             </p>
-            <p className="text-sm text-neutral-500">Reset: Sept 3, 2026</p>
+            <p className="text-sm text-neutral-600">Reset: Sept 3, 2026</p>
           </div>
         </div>
       </div>

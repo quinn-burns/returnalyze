@@ -39,7 +39,7 @@ function Pill({ change, trend }: { change: string; trend: Trend }) {
   const styles: Record<Trend, string> = {
     up: "bg-success-50 text-success-600",
     down: "bg-danger-50 text-danger-600",
-    flat: "bg-neutral-100 text-neutral-500",
+    flat: "bg-neutral-100 text-neutral-600",
   };
   return (
     <div className="flex items-center gap-1.5">
@@ -48,7 +48,7 @@ function Pill({ change, trend }: { change: string; trend: Trend }) {
       >
         {change}
       </span>
-      <span className="text-[11px] text-neutral-400">vs last period</span>
+      <span className="text-[11px] text-neutral-600">vs last period</span>
     </div>
   );
 }
@@ -62,7 +62,7 @@ function Header() {
         <h1 className="text-[36px] font-bold leading-tight text-neutral-800">
           Overview
         </h1>
-        <p className="text-sm text-neutral-500">May 11, 2025 - May 10, 2026</p>
+        <p className="text-sm text-neutral-600">May 11, 2025 - May 10, 2026</p>
       </div>
       <div className="flex items-center gap-3">
         <CustomizeMenu />
@@ -106,7 +106,7 @@ function ReturnsDriversRow() {
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
           {RETURNS_DRIVERS.map((label) => (
             <div key={label} className="rounded-lg bg-neutral-0 px-2 py-1">
-              <p className="truncate text-xs text-neutral-500">{label}</p>
+              <p className="truncate text-xs text-neutral-600">{label}</p>
               <p className="text-base font-bold text-neutral-800">$35.3M</p>
             </div>
           ))}
@@ -140,7 +140,7 @@ function KpiRow() {
     <div className="grid grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-0 px-4 sm:grid-cols-3 lg:grid-cols-6">
       {KPIS.map((kpi) => (
         <div key={kpi.label} className="flex flex-col gap-1.5 p-4">
-          <p className="text-xs text-neutral-500">{kpi.label}</p>
+          <p className="text-xs text-neutral-600">{kpi.label}</p>
           <p className="text-[28px] font-bold leading-[34px] text-neutral-800">
             {kpi.value}
           </p>
@@ -190,11 +190,11 @@ function PerformanceTrends() {
       <div className="relative mt-2 h-[354px] w-full text-[13px] text-neutral-600">
         {/* Legend */}
         <div className="absolute right-4 top-3.5 z-10 flex items-center gap-4">
-          <span className="flex items-center gap-1.5 text-xs text-neutral-500">
+          <span className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span className="size-3 rounded-full bg-chart-return" />
             Return Rate (v)
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-neutral-500">
+          <span className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span className="size-3 rounded-full bg-chart-revenue" />
             Revenue
           </span>

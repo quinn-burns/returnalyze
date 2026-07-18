@@ -54,7 +54,7 @@ function Header() {
         <h1 className="text-[36px] font-bold leading-tight text-neutral-800">
           Returns Drivers
         </h1>
-        <p className="text-sm text-neutral-500">May 11, 2025 - May 10, 2026</p>
+        <p className="text-sm text-neutral-600">May 11, 2025 - May 10, 2026</p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ function Header() {
             key={s.label}
             className={`flex h-[60px] flex-col justify-center rounded-lg border border-neutral-200 px-3 py-2 ${s.tint}`}
           >
-            <p className="text-xs text-neutral-500">{s.label}</p>
+            <p className="text-xs text-neutral-600">{s.label}</p>
             <p className="text-base font-bold text-neutral-800">{s.value}</p>
           </div>
         ))}
@@ -126,7 +126,7 @@ function TabBar() {
                   className={`text-[13px] ${
                     active
                       ? "font-semibold text-primary-600"
-                      : "font-medium text-neutral-500"
+                      : "font-medium text-neutral-600"
                   }`}
                 >
                   {tab.label}
@@ -135,7 +135,7 @@ function TabBar() {
                   className={`rounded-full px-1.5 py-px text-[10px] font-medium ${
                     active
                       ? "bg-primary-100 text-primary-700"
-                      : "bg-neutral-100 text-neutral-500"
+                      : "bg-neutral-100 text-neutral-600"
                   }`}
                 >
                   {tab.count}
@@ -170,13 +170,13 @@ function DriverCard({ card, onSelect }: { card: typeof CARD; onSelect: () => voi
             </span>
           ))}
         </div>
-        <p className="text-xs font-bold text-neutral-500">{card.sku}</p>
+        <p className="text-xs font-bold text-neutral-600">{card.sku}</p>
         <p className="text-base font-medium text-neutral-800">{card.title}</p>
       </div>
       <div className="flex gap-2">
         {card.metrics.map((m) => (
           <div key={m.label} className="flex flex-col gap-1.5">
-            <p className="text-xs text-neutral-500">{m.label}</p>
+            <p className="text-xs text-neutral-600">{m.label}</p>
             <p className="text-xs font-bold text-neutral-800">{m.value}</p>
           </div>
         ))}

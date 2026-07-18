@@ -117,12 +117,12 @@ function ActionCard({
       <div className="flex flex-col gap-2">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-neutral-500">{card.id}</span>
+            <span className="text-xs font-bold text-neutral-600">{card.id}</span>
             <span className="rounded-sm bg-primary-100 px-1 text-xs font-bold text-primary-500">
               {card.kind}
             </span>
           </div>
-          <span className="text-xs font-bold text-neutral-500">{status}</span>
+          <span className="text-xs font-bold text-neutral-600">{status}</span>
         </div>
         <p className="text-base font-medium text-neutral-800">{card.title}</p>
         <p className="line-clamp-2 text-sm leading-5 text-neutral-600">{card.desc}</p>
@@ -149,7 +149,7 @@ function Header() {
     <header className="flex items-center justify-between bg-neutral-0 px-4 py-6">
       <div className="flex flex-col justify-center">
         <h1 className="text-[36px] font-bold leading-tight text-neutral-800">Actions</h1>
-        <p className="text-sm text-neutral-500">May 11, 2025 - May 10, 2026</p>
+        <p className="text-sm text-neutral-600">May 11, 2025 - May 10, 2026</p>
       </div>
       <div className="flex items-center gap-3">
         <CustomizeMenu />

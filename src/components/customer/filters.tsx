@@ -25,7 +25,7 @@ export function FilterSelect({ label, options }: { label: string; options: strin
   const [value, setValue] = useState(options[0]);
   return (
     <label className="flex min-w-[150px] flex-1 flex-col gap-1">
-      <span className="text-xs text-neutral-500">{label}</span>
+      <span className="text-xs text-neutral-600">{label}</span>
       <div className="relative">
         <select
           value={value}

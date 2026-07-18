@@ -88,7 +88,7 @@ function ExchangeKind() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11px] leading-4 text-neutral-400">
+      <p className="mt-3 text-[11px] leading-4 text-neutral-600">
         Share of returns saved as a same-style exchange rather than a refund.
       </p>
     </Card>
@@ -124,7 +124,7 @@ function ComeBack() {
     <Card>
       <div className="flex flex-col gap-1">
         <h2 className="text-base font-semibold text-neutral-800">Where do they come back?</h2>
-        <p className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500">
+        <p className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-600">
           <span className="size-2.5 rounded-full" style={{ backgroundColor: "#dc2828" }} />
           Breaking down the <span className="font-semibold text-neutral-700">Returned — 33%</span> ·
           top styles, by re-return rate × volume
@@ -143,7 +143,7 @@ function ComeBack() {
                 style={{ width: `${(s.pct / max) * 100}%` }}
               />
             </div>
-            <span className="w-44 shrink-0 text-right text-xs text-neutral-500">
+            <span className="w-44 shrink-0 text-right text-xs text-neutral-600">
               <span className="font-semibold text-neutral-800">{s.pct}%</span> · {s.detail}
             </span>
           </div>
@@ -172,7 +172,7 @@ function PromoteTable({
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[560px] text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-neutral-500">
+            <tr className="border-b border-neutral-200 text-neutral-600">
               <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Return Revenue</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>
@@ -222,7 +222,7 @@ function GuidanceTable({
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-neutral-500">
+            <tr className="border-b border-neutral-200 text-neutral-600">
               <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Return Revenue</th>
               <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>

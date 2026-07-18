@@ -1,7 +1,7 @@
 import CustomerContent from "@/components/customer/CustomerContent";
 
 export const metadata = {
-  title: "Customer — Return App",
+  title: "Customers — Return App",
 };
 
 export default function CustomerPage() {

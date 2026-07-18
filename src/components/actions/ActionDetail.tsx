@@ -127,7 +127,7 @@ export function ProductScope({ plain = false }: { plain?: boolean }) {
           Add +
         </button>
       </div>
-      <p className="mt-2 text-sm text-neutral-500">
+      <p className="mt-2 text-sm text-neutral-600">
         If no products are added to this list, the action will apply to the entire filter set
       </p>
     </>
@@ -276,7 +276,7 @@ function Comment({ nested = false }: { nested?: boolean }) {
       <p className="flex items-center gap-2 text-sm">
         <Avatar name="Brandon Woods" size={22} />
         <span className="font-semibold text-neutral-800">Brandon Woods</span>
-        <span className="text-neutral-500">· 1 hour ago</span>
+        <span className="text-neutral-600">· 1 hour ago</span>
       </p>
       <p className="mt-1.5 text-sm leading-5 text-neutral-700">{LOREM}</p>
       {!nested && (
@@ -353,7 +353,7 @@ export default function ActionDetail({
         <div>
           <h1 className="text-xl font-bold text-neutral-800">{title}</h1>
           <p className="mt-1 flex items-center gap-2">
-            <span className="text-xs font-bold text-neutral-500">{sku}</span>
+            <span className="text-xs font-bold text-neutral-600">{sku}</span>
             <span className="rounded bg-primary-100 px-1.5 py-0.5 text-xs font-bold text-primary-500">
               Action
             </span>

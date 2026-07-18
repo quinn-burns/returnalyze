@@ -189,7 +189,7 @@ function OverviewTab() {
       </div>
 
       <div className="flex items-center gap-3 pt-1">
-        <span className="shrink-0 text-sm text-neutral-500">Not selected</span>
+        <span className="shrink-0 text-sm text-neutral-600">Not selected</span>
         <span className="h-px flex-1 bg-neutral-200" />
       </div>
 
@@ -266,7 +266,7 @@ function PlaceholderTab({ label }: { label: string }) {
   return (
     <div className="flex min-h-[240px] flex-col items-center justify-center gap-1 text-center">
       <p className="text-base font-semibold text-neutral-800">{label}</p>
-      <p className="text-sm text-neutral-500">This section is coming soon.</p>
+      <p className="text-sm text-neutral-600">This section is coming soon.</p>
     </div>
   );
 }

@@ -87,7 +87,7 @@ export function ActionModalProvider({ children }: { children: ReactNode }) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h1 className="text-xl font-bold text-neutral-800">Submit an action</h1>
-                <p className="mt-1 text-sm text-neutral-500">
+                <p className="mt-1 text-sm text-neutral-600">
                   {target.context} ·{" "}
                   <span className="font-semibold text-neutral-800">{target.department}</span>
                 </p>

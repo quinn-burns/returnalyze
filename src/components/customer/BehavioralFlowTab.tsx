@@ -80,7 +80,7 @@ function StageBar({
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-neutral-800">
           {title}
-          {note ? <span className="ml-1.5 text-xs font-normal text-neutral-400">{note}</span> : null}
+          {note ? <span className="ml-1.5 text-xs font-normal text-neutral-600">{note}</span> : null}
         </span>
         {selected && onSelect ? (
           <button
@@ -165,14 +165,14 @@ function JourneyExplorer() {
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-primary-50 px-3 py-2">
         <p className="text-sm text-neutral-700">
           <span className="font-bold text-neutral-800">{fmt(pathCount)}</span> customers
-          <span className="text-neutral-500">
+          <span className="text-neutral-600">
             {" "}
             ({Math.round((pathCount / TOTAL) * 100)}% of {fmt(TOTAL)})
           </span>
           {crumbs.length ? (
-            <span className="text-neutral-500"> · {crumbs.join(" → ")}</span>
+            <span className="text-neutral-600"> · {crumbs.join(" → ")}</span>
           ) : (
-            <span className="text-neutral-500"> · all customers</span>
+            <span className="text-neutral-600"> · all customers</span>
           )}
         </p>
         {crumbs.length ? (
@@ -258,12 +258,12 @@ function AllPaths() {
     <Card>
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-neutral-800">All paths</h2>
-        <span className="text-xs text-neutral-500">Sort value: Net</span>
+        <span className="text-xs text-neutral-600">Sort value: Net</span>
       </div>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-neutral-500">
+            <tr className="border-b border-neutral-200 text-neutral-600">
               <th className="whitespace-nowrap py-2 pr-3 font-normal">Bracketing</th>
               <th className="whitespace-nowrap px-3 py-2 font-normal">First Order</th>
               <th className="whitespace-nowrap px-3 py-2 font-normal">Next Purchase?</th>

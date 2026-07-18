@@ -182,10 +182,10 @@ function KeyMetrics() {
       <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {METRICS.map((m, i) => (
           <div key={i} className="rounded-lg border border-neutral-200 p-3">
-            <p className="text-xs text-neutral-500">Metric</p>
+            <p className="text-xs text-neutral-600">Metric</p>
             <p className="my-1 text-xl font-bold text-neutral-800">{m.value}</p>
             {m.lines.map((line) => (
-              <p key={line} className="text-[11px] leading-4 text-neutral-500">
+              <p key={line} className="text-[11px] leading-4 text-neutral-600">
                 {line}
               </p>
             ))}
@@ -302,7 +302,7 @@ function ReasonsDonut() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-lg font-bold text-neutral-800">432</span>
-            <span className="text-[10px] text-neutral-500">Items Returned</span>
+            <span className="text-[10px] text-neutral-600">Items Returned</span>
           </div>
         </div>
       </div>
@@ -313,7 +313,7 @@ function ReasonsDonut() {
               <span className="size-2 rounded-full" style={{ backgroundColor: seg.color }} />
               {seg.label}
             </span>
-            <span className="text-neutral-500">{seg.pct}%</span>
+            <span className="text-neutral-600">{seg.pct}%</span>
           </li>
         ))}
       </ul>
@@ -374,7 +374,7 @@ function TopStyles() {
                     <span className="size-10 shrink-0 rounded-lg bg-neutral-100" />
                     <span>
                       <span className="block font-semibold text-neutral-800">{s.name}</span>
-                      <span className="block text-xs text-neutral-500">{s.sku}</span>
+                      <span className="block text-xs text-neutral-600">{s.sku}</span>
                     </span>
                   </div>
                 </td>
@@ -422,7 +422,7 @@ function CustomerQuotes() {
         {QUOTES.map((q) => (
           <div key={q.sku} className="rounded-lg border border-neutral-200 p-4">
             <p className="font-semibold text-neutral-800">{q.name}</p>
-            <p className="text-xs text-neutral-500">{q.sku}</p>
+            <p className="text-xs text-neutral-600">{q.sku}</p>
             <div className="mt-2 flex flex-col gap-2.5">
               {q.items.map((item) => (
                 <div key={item.tag}>
@@ -507,7 +507,7 @@ function BusinessImpact() {
             key={s.label}
             className={`flex h-[60px] min-w-[150px] flex-col justify-center rounded-lg border border-neutral-200 px-3 py-2 ${s.tint}`}
           >
-            <p className="text-xs text-neutral-500">{s.label}</p>
+            <p className="text-xs text-neutral-600">{s.label}</p>
             <p className="text-base font-bold text-neutral-800">{s.value}</p>
           </div>
         ))}
@@ -541,7 +541,7 @@ export default function DriverDetail({
           <SheetHeaderActions />
         </div>
         <div>
-          <p className="text-xs font-bold text-neutral-500">{sku}</p>
+          <p className="text-xs font-bold text-neutral-600">{sku}</p>
           <h1 className="text-xl font-bold text-neutral-800">{title}</h1>
         </div>
         <KeyInsights />

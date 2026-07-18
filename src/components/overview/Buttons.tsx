@@ -66,7 +66,7 @@ export function FilterButton({
       className={[
         "flex h-10 shrink-0 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors",
         disabled
-          ? "cursor-not-allowed bg-neutral-100 text-neutral-500"
+          ? "cursor-not-allowed bg-neutral-100 text-neutral-600"
           : "bg-primary-600 text-white hover:bg-primary-700",
       ].join(" ")}
     >
