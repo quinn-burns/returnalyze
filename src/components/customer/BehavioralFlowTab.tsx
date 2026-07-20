@@ -308,26 +308,29 @@ const S_BRACKETS: { id: string; label: string; share: number; color: string; out
   { id: "single", label: "No Bracketing", share: 0.59, color: "#c7d4ff", out: { retall: 0.22, keptsome: 0, keptall: 0.78 } },
 ];
 const S_OUTCOMES = [
-  { id: "retall", label: "Returned All", color: "#ef4444", repeat: 0.41 },
-  { id: "keptsome", label: "Kept Some", color: "#f59f0a", repeat: 0.58 },
-  { id: "keptall", label: "Kept All", color: "#10b981", repeat: 0.74 },
-];
-const S_NEXT = [
-  { id: "yes", label: "Next Purchase", color: "#4169e1" },
-  { id: "no", label: "No Next Purchase", color: "#c7d4ff" },
+  { id: "retall", label: "Returned All", color: "#ef4444", repeat: 0.41, val: -14 },
+  { id: "keptsome", label: "Kept Some", color: "#f59f0a", repeat: 0.58, val: 104 },
+  { id: "keptall", label: "Kept All", color: "#10b981", repeat: 0.74, val: 188 },
 ];
 const S_DEPTS = [
-  { id: "denim", label: "W Denim", share: 0.34, color: "#d97706" },
-  { id: "tops", label: "W Tops", share: 0.28, color: "#f59f0a" },
-  { id: "acc", label: "Accessories", share: 0.19, color: "#fbbf24" },
-  { id: "mens", label: "Mens", share: 0.11, color: "#fcd34d" },
-  { id: "other", label: "Other", share: 0.08, color: "#fde68a" },
+  { id: "denim", label: "W Denim", share: 0.34, color: "#d97706", val: 150 },
+  { id: "tops", label: "W Tops", share: 0.28, color: "#f59f0a", val: 96 },
+  { id: "acc", label: "Accessories", share: 0.19, color: "#fbbf24", val: 54 },
+  { id: "mens", label: "Mens", share: 0.11, color: "#fcd34d", val: 128 },
+  { id: "other", label: "Other", share: 0.08, color: "#fde68a", val: 72 },
 ];
 
 const sFmt = (n: number) => Math.round(n).toLocaleString();
+function sMoney(v: number) {
+  const a = Math.abs(v);
+  const s = v < 0 ? "-" : "";
+  if (a >= 1e6) return `${s}$${(a / 1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `${s}$${(a / 1e3).toFixed(1)}K`;
+  return `${s}$${Math.round(a)}`;
+}
 
-type SNode = { x: number; y: number; h: number; v: number; color: string; label: string };
-type SBand = { x0: number; x1: number; y0: number; y1: number; h: number; color: string; title: string };
+type SN = { id: string; label: string; c: string; v: number; x: number; y0: number; y1: number };
+type Tip = { title: string; cust: number; avg: number };
 
 const S_LEGEND = [
   { label: "Size", color: "#4169e1" },
@@ -342,126 +345,236 @@ const S_LEGEND = [
 ];
 
 function Sankey() {
-  const NW = 13;
-  const TOP = 58;
-  const GAP = 7;
-  const AREA = 468;
-  const scale = (AREA - 3 * GAP) / SANKEY_TOTAL;
-
-  const bracketTot = S_BRACKETS.map((b) => b.share * SANKEY_TOTAL);
-  const outcomeTot = S_OUTCOMES.map((o) =>
-    S_BRACKETS.reduce((s, b, bi) => s + bracketTot[bi] * b.out[o.id], 0),
+  const [hover, setHover] = useState<{ kind: "rib"; i: number } | { kind: "node"; id: string } | null>(
+    null,
   );
-  const nextYes = S_OUTCOMES.reduce((s, o, oi) => s + outcomeTot[oi] * o.repeat, 0);
-  const nextTot = [nextYes, SANKEY_TOTAL - nextYes];
-  const deptTot = S_DEPTS.map((d) => d.share * nextYes);
+  const [tip, setTip] = useState<Tip | null>(null);
 
-  const column = (vals: number[], x: number, colors: string[], labels: string[]): SNode[] => {
-    let y = TOP;
-    return vals.map((v, i) => {
-      const h = v * scale;
-      const n = { x, y, h, v, color: colors[i], label: labels[i] };
-      y += h + GAP;
-      return n;
+  const W = 700;
+  const H = 470;
+  const colW = 16;
+  const cols = [40, 225, 400, 585];
+  const top = 50;
+  const scale = (H - top - 14 - 5 * 6) / SANKEY_TOTAL;
+
+  const bracketN = S_BRACKETS.map((b) => b.share * SANKEY_TOTAL);
+  const outTot = S_OUTCOMES.map((o) =>
+    S_BRACKETS.reduce((s, b, bi) => s + bracketN[bi] * b.out[o.id], 0),
+  );
+  const repeatN = S_OUTCOMES.reduce((s, o, oi) => s + outTot[oi] * o.repeat, 0);
+  const norepN = SANKEY_TOTAL - repeatN;
+  const avgFirst = S_OUTCOMES.reduce((s, o, oi) => s + outTot[oi] * o.val, 0) / SANKEY_TOTAL;
+  const avgDept = S_DEPTS.reduce((s, d) => s + d.share * d.val, 0);
+
+  const stack = (items: { id: string; label: string; c: string; v: number }[], x: number): SN[] => {
+    let y = top;
+    return items.map((it) => {
+      const node = { ...it, x, y0: y, y1: y + it.v * scale };
+      y += it.v * scale + 6;
+      return node;
     });
   };
-  const col0 = column(bracketTot, 150, S_BRACKETS.map((b) => b.color), S_BRACKETS.map((b) => b.label));
-  const col1 = column(outcomeTot, 460, S_OUTCOMES.map((o) => o.color), S_OUTCOMES.map((o) => o.label));
-  const col2 = column(nextTot, 700, S_NEXT.map((n) => n.color), S_NEXT.map((n) => n.label));
-  const col3 = column(deptTot, 1002, S_DEPTS.map((d) => d.color), S_DEPTS.map((d) => d.label));
+  const colA = stack(
+    S_BRACKETS.map((b, i) => ({ id: b.id, label: b.label, c: b.color, v: bracketN[i] })),
+    cols[0],
+  );
+  const colB = stack(
+    S_OUTCOMES.map((o, i) => ({ id: o.id, label: o.label, c: o.color, v: outTot[i] })),
+    cols[1],
+  );
+  const colC = stack(
+    [
+      { id: "next", label: "Next Purchase", c: "#4169e1", v: repeatN },
+      { id: "norep", label: "No Next Purchase", c: "#c7d4ff", v: norepN },
+    ],
+    cols[2],
+  );
+  const colD = stack(
+    S_DEPTS.map((d) => ({ id: d.id, label: d.label, c: d.color, v: repeatN * d.share })),
+    cols[3],
+  );
 
-  const bands = (src: SNode[], tgt: SNode[], valFn: (si: number, ti: number) => number): SBand[] => {
-    const srcOff = src.map((s) => s.y);
-    const tgtOff = tgt.map((t) => t.y);
-    const out: SBand[] = [];
-    src.forEach((s, si) => {
-      tgt.forEach((t, ti) => {
-        const v = valFn(si, ti);
-        if (v <= 0.5) return;
-        const h = v * scale;
-        out.push({
-          x0: s.x + NW,
-          x1: t.x,
-          y0: srcOff[si],
-          y1: tgtOff[ti],
-          h,
-          color: t.color,
-          title: `${s.label} → ${t.label}: ${sFmt(v)} customers`,
-        });
-        srcOff[si] += h;
-        tgtOff[ti] += h;
-      });
-    });
-    return out;
-  };
+  const nodeMap: Record<string, SN> = {};
+  [...colA, ...colB, ...colC, ...colD].forEach((n) => {
+    nodeMap[n.id] = n;
+  });
 
-  const links = [
-    ...bands(col0, col1, (bi, oi) => bracketTot[bi] * S_BRACKETS[bi].out[S_OUTCOMES[oi].id]),
-    ...bands(col1, col2, (oi, ni) =>
-      ni === 0 ? outcomeTot[oi] * S_OUTCOMES[oi].repeat : outcomeTot[oi] * (1 - S_OUTCOMES[oi].repeat),
-    ),
-    ...bands(col2, col3, (ni, di) => (ni === 0 ? nextYes * S_DEPTS[di].share : 0)),
-  ];
+  const perNodeVal: Record<string, number> = { next: avgFirst + avgDept, norep: avgFirst };
+  S_OUTCOMES.forEach((o) => {
+    perNodeVal[o.id] = o.val;
+  });
+  S_BRACKETS.forEach((b) => {
+    perNodeVal[b.id] = Object.keys(b.out).reduce((s, k) => {
+      const o = S_OUTCOMES.find((x) => x.id === k);
+      return o ? s + b.out[k] * (o.val + o.repeat * avgDept) : s;
+    }, 0);
+  });
+  S_DEPTS.forEach((d) => {
+    perNodeVal[d.id] = avgFirst + d.val;
+  });
 
-  const bandPath = (b: SBand) => {
-    const xc = (b.x0 + b.x1) / 2;
-    const y0t = b.y0;
-    const y0b = b.y0 + b.h;
-    const y1t = b.y1;
-    const y1b = b.y1 + b.h;
-    return `M${b.x0},${y0t} C${xc},${y0t} ${xc},${y1t} ${b.x1},${y1t} L${b.x1},${y1b} C${xc},${y1b} ${xc},${y0b} ${b.x0},${y0b} Z`;
-  };
+  type L = { src: string; dst: string; v: number; color: string; avgVal: number };
+  const links: L[] = [];
+  S_BRACKETS.forEach((b, bi) =>
+    S_OUTCOMES.forEach((o) => {
+      const v = bracketN[bi] * b.out[o.id];
+      if (v >= 1) links.push({ src: b.id, dst: o.id, v, color: o.color, avgVal: o.val + o.repeat * avgDept });
+    }),
+  );
+  S_OUTCOMES.forEach((o, oi) => {
+    const tt = outTot[oi];
+    links.push({ src: o.id, dst: "next", v: tt * o.repeat, color: "#4169e1", avgVal: o.val + avgDept });
+    links.push({ src: o.id, dst: "norep", v: tt * (1 - o.repeat), color: "#c7d4ff", avgVal: o.val });
+  });
+  S_DEPTS.forEach((d) =>
+    links.push({ src: "next", dst: d.id, v: repeatN * d.share, color: d.color, avgVal: avgFirst + d.val }),
+  );
 
-  const label = (n: SNode, side: "left" | "right", key: string) => {
-    const x = side === "right" ? n.x + NW + 8 : n.x - 8;
-    const cy = n.y + n.h / 2;
-    return (
-      <text key={key} x={x} textAnchor={side === "right" ? "start" : "end"} fill="#212121">
-        <tspan x={x} y={cy - 2} fontSize="12.5" fontWeight="600">
-          {n.label}
-        </tspan>
-        <tspan x={x} y={cy + 12} fontSize="11" fill="#676767">
-          {sFmt(n.v)}
-        </tspan>
-      </text>
-    );
-  };
+  const outOff: Record<string, number> = {};
+  const inOff: Record<string, number> = {};
+  const ribbons = links.map((l) => {
+    const s = nodeMap[l.src];
+    const dn = nodeMap[l.dst];
+    const so = outOff[l.src] || 0;
+    const io = inOff[l.dst] || 0;
+    const sy0 = s.y0 + so;
+    const sy1 = sy0 + l.v * scale;
+    const dy0 = dn.y0 + io;
+    const dy1 = dy0 + l.v * scale;
+    outOff[l.src] = so + l.v * scale;
+    inOff[l.dst] = io + l.v * scale;
+    const x1 = s.x + colW;
+    const x2 = dn.x;
+    const mx = (x1 + x2) / 2;
+    return {
+      path: `M${x1},${sy0} C${mx},${sy0} ${mx},${dy0} ${x2},${dy0} L${x2},${dy1} C${mx},${dy1} ${mx},${sy1} ${x1},${sy1} Z`,
+      l,
+    };
+  });
 
-  const headers: [string, number][] = [
-    ["Bracketing Type", 218],
-    ["First Order", 528],
-    ["Next Purchase?", 773],
-    ["Next Dept", 942],
+  const headers = [
+    { x: cols[0], label: "Bracketing Type" },
+    { x: cols[1], label: "First Order" },
+    { x: cols[2], label: "Next Purchase?" },
+    { x: cols[3], label: "Next Dept", right: true },
   ];
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       <svg
-        viewBox="0 0 1040 560"
-        className="aspect-[1040/560] w-full min-w-[760px]"
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        style={{ display: "block", maxWidth: W, height: "auto", margin: "0 auto" }}
         role="img"
         aria-label="Behavioral flow Sankey diagram"
+        onMouseLeave={() => {
+          setHover(null);
+          setTip(null);
+        }}
       >
-        {headers.map(([t, x]) => (
-          <text key={t} x={x} y={26} textAnchor="middle" fontSize="12.5" fontWeight="600" fill="#212121">
-            {t}
+        {headers.map((h, i) => (
+          <text
+            key={i}
+            x={h.right ? h.x + colW : h.x}
+            y={34}
+            textAnchor={h.right ? "end" : "start"}
+            fontSize="12"
+            fontWeight="600"
+            fill="#454545"
+          >
+            {h.label}
           </text>
         ))}
-        {links.map((b, i) => (
-          <path key={i} d={bandPath(b)} fill={b.color} fillOpacity={0.4}>
-            <title>{b.title}</title>
-          </path>
-        ))}
-        {[...col0, ...col1, ...col2, ...col3].map((n, i) => (
-          <rect key={i} x={n.x} y={n.y} width={NW} height={Math.max(n.h, 1)} rx={2.5} fill={n.color}>
-            <title>{`${n.label}: ${sFmt(n.v)} customers`}</title>
-          </rect>
-        ))}
-        {col0.map((n, i) => label(n, "right", `l0-${i}`))}
-        {col1.map((n, i) => label(n, "right", `l1-${i}`))}
-        {col2.map((n, i) => label(n, "right", `l2-${i}`))}
-        {col3.map((n, i) => label(n, "left", `l3-${i}`))}
+        {ribbons.map((r, i) => {
+          const op = hover?.kind === "rib" ? (hover.i === i ? 0.6 : 0.1) : 0.32;
+          return (
+            <path
+              key={i}
+              d={r.path}
+              fill={r.l.color}
+              fillOpacity={op}
+              style={{ cursor: "pointer", transition: "fill-opacity 120ms" }}
+              onMouseEnter={() => {
+                setHover({ kind: "rib", i });
+                setTip({
+                  title: `${nodeMap[r.l.src].label} → ${nodeMap[r.l.dst].label}`,
+                  cust: r.l.v,
+                  avg: r.l.avgVal,
+                });
+              }}
+            />
+          );
+        })}
+        {Object.values(nodeMap).map((n) => {
+          const h = Math.max(2, n.y1 - n.y0);
+          const left = n.x > W / 2;
+          const tx = left ? n.x - 6 : n.x + colW + 6;
+          const anchor = left ? "end" : "start";
+          const mid = (n.y0 + n.y1) / 2;
+          return (
+            <g key={n.id}>
+              <rect
+                x={n.x}
+                y={n.y0}
+                width={colW}
+                height={h}
+                rx={3}
+                fill={n.c}
+                style={{ cursor: "pointer" }}
+                onMouseEnter={() => {
+                  setHover({ kind: "node", id: n.id });
+                  setTip({ title: n.label, cust: n.v, avg: perNodeVal[n.id] });
+                }}
+              />
+              {h > 22 ? (
+                <>
+                  <text x={tx} y={mid - 2} textAnchor={anchor} fontSize="11" fontWeight="600" fill="#212121" pointerEvents="none">
+                    {n.label}
+                  </text>
+                  <text x={tx} y={mid + 11} textAnchor={anchor} fontSize="10.5" fill="#676767" pointerEvents="none">
+                    {sFmt(n.v)}
+                  </text>
+                </>
+              ) : (
+                <text x={tx} y={mid + 3.5} textAnchor={anchor} fontSize="10.5" fontWeight="600" fill="#212121" pointerEvents="none">
+                  {n.label} · {sFmt(n.v)}
+                </text>
+              )}
+            </g>
+          );
+        })}
       </svg>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        {S_LEGEND.map((l) => (
+          <span key={l.label} className="flex items-center gap-1.5 text-[11px] text-neutral-600">
+            {l.divider && <span className="mr-1 text-neutral-300">|</span>}
+            <span className="size-2.5 rounded-[3px]" style={{ backgroundColor: l.color }} />
+            {l.label}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-2 min-h-[42px] text-xs text-neutral-600">
+        {tip ? (
+          <>
+            <span className="font-semibold text-neutral-800">{tip.title}</span>
+            <div className="mt-0.5 flex flex-wrap gap-4">
+              <span>
+                Customers: <span className="text-neutral-800">{sFmt(tip.cust)}</span>
+              </span>
+              <span>
+                Total value: <span className="text-neutral-800">{sMoney(tip.cust * tip.avg)}</span>
+              </span>
+              <span>
+                Avg / customer: <span className="text-neutral-800">{sMoney(tip.avg)}</span>
+              </span>
+            </div>
+          </>
+        ) : (
+          "Hover a flow or node to see customers, total value, and average value."
+        )}
+      </div>
     </div>
   );
 }
@@ -476,18 +589,6 @@ function SankeyFlow() {
       <div className="mt-4">
         <Sankey />
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-        {S_LEGEND.map((l) => (
-          <span key={l.label} className="flex items-center gap-1.5 text-[11px] text-neutral-600">
-            {l.divider && <span className="mr-1 text-neutral-300">|</span>}
-            <span className="size-2.5 rounded-[3px]" style={{ backgroundColor: l.color }} />
-            {l.label}
-          </span>
-        ))}
-      </div>
-      <p className="mt-2 text-[11px] text-neutral-600">
-        Hover any flow or node to see the customer count.
-      </p>
     </Card>
   );
 }
