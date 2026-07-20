@@ -350,10 +350,10 @@ function Sankey() {
   );
   const [tip, setTip] = useState<Tip | null>(null);
 
-  const W = 700;
+  const W = 1240;
   const H = 470;
   const colW = 16;
-  const cols = [40, 225, 400, 585];
+  const cols = [60, 430, 800, 1160];
   const top = 50;
   const scale = (H - top - 14 - 5 * 6) / SANKEY_TOTAL;
 
@@ -464,7 +464,7 @@ function Sankey() {
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
-        style={{ display: "block", maxWidth: W, height: "auto", margin: "0 auto" }}
+        style={{ display: "block", width: "100%", height: "auto" }}
         role="img"
         aria-label="Behavioral flow Sankey diagram"
         onMouseLeave={() => {
