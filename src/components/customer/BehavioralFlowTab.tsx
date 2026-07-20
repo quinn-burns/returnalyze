@@ -298,9 +298,204 @@ function AllPaths() {
 
 /* ----------------------------- tab ------------------------------- */
 
+/* ----------------------------- sankey ---------------------------- */
+
+const SANKEY_TOTAL = 24318;
+const S_BRACKETS: { id: string; label: string; share: number; color: string; out: Record<string, number> }[] = [
+  { id: "size", label: "Size", share: 0.22, color: "#4169e1", out: { retall: 0.22, keptsome: 0.3, keptall: 0.48 } },
+  { id: "color", label: "Color", share: 0.11, color: "#85a1ff", out: { retall: 0.18, keptsome: 0.27, keptall: 0.55 } },
+  { id: "both", label: "Size + Color", share: 0.08, color: "#26398c", out: { retall: 0.25, keptsome: 0.45, keptall: 0.3 } },
+  { id: "single", label: "No Bracketing", share: 0.59, color: "#c7d4ff", out: { retall: 0.22, keptsome: 0, keptall: 0.78 } },
+];
+const S_OUTCOMES = [
+  { id: "retall", label: "Returned All", color: "#ef4444", repeat: 0.41 },
+  { id: "keptsome", label: "Kept Some", color: "#f59f0a", repeat: 0.58 },
+  { id: "keptall", label: "Kept All", color: "#10b981", repeat: 0.74 },
+];
+const S_NEXT = [
+  { id: "yes", label: "Next Purchase", color: "#4169e1" },
+  { id: "no", label: "No Next Purchase", color: "#c7d4ff" },
+];
+const S_DEPTS = [
+  { id: "denim", label: "W Denim", share: 0.34, color: "#d97706" },
+  { id: "tops", label: "W Tops", share: 0.28, color: "#f59f0a" },
+  { id: "acc", label: "Accessories", share: 0.19, color: "#fbbf24" },
+  { id: "mens", label: "Mens", share: 0.11, color: "#fcd34d" },
+  { id: "other", label: "Other", share: 0.08, color: "#fde68a" },
+];
+
+const sFmt = (n: number) => Math.round(n).toLocaleString();
+
+type SNode = { x: number; y: number; h: number; v: number; color: string; label: string };
+type SBand = { x0: number; x1: number; y0: number; y1: number; h: number; color: string; title: string };
+
+const S_LEGEND = [
+  { label: "Size", color: "#4169e1" },
+  { label: "Color", color: "#85a1ff" },
+  { label: "Size + Color", color: "#26398c" },
+  { label: "No Bracketing", color: "#c7d4ff" },
+  { label: "Returned All", color: "#ef4444", divider: true },
+  { label: "Kept Some", color: "#f59f0a" },
+  { label: "Kept All", color: "#10b981" },
+  { label: "Next Purchase", color: "#4169e1", divider: true },
+  { label: "Next Dept", color: "#f59f0a" },
+];
+
+function Sankey() {
+  const NW = 13;
+  const TOP = 58;
+  const GAP = 7;
+  const AREA = 468;
+  const scale = (AREA - 3 * GAP) / SANKEY_TOTAL;
+
+  const bracketTot = S_BRACKETS.map((b) => b.share * SANKEY_TOTAL);
+  const outcomeTot = S_OUTCOMES.map((o) =>
+    S_BRACKETS.reduce((s, b, bi) => s + bracketTot[bi] * b.out[o.id], 0),
+  );
+  const nextYes = S_OUTCOMES.reduce((s, o, oi) => s + outcomeTot[oi] * o.repeat, 0);
+  const nextTot = [nextYes, SANKEY_TOTAL - nextYes];
+  const deptTot = S_DEPTS.map((d) => d.share * nextYes);
+
+  const column = (vals: number[], x: number, colors: string[], labels: string[]): SNode[] => {
+    let y = TOP;
+    return vals.map((v, i) => {
+      const h = v * scale;
+      const n = { x, y, h, v, color: colors[i], label: labels[i] };
+      y += h + GAP;
+      return n;
+    });
+  };
+  const col0 = column(bracketTot, 150, S_BRACKETS.map((b) => b.color), S_BRACKETS.map((b) => b.label));
+  const col1 = column(outcomeTot, 460, S_OUTCOMES.map((o) => o.color), S_OUTCOMES.map((o) => o.label));
+  const col2 = column(nextTot, 700, S_NEXT.map((n) => n.color), S_NEXT.map((n) => n.label));
+  const col3 = column(deptTot, 1002, S_DEPTS.map((d) => d.color), S_DEPTS.map((d) => d.label));
+
+  const bands = (src: SNode[], tgt: SNode[], valFn: (si: number, ti: number) => number): SBand[] => {
+    const srcOff = src.map((s) => s.y);
+    const tgtOff = tgt.map((t) => t.y);
+    const out: SBand[] = [];
+    src.forEach((s, si) => {
+      tgt.forEach((t, ti) => {
+        const v = valFn(si, ti);
+        if (v <= 0.5) return;
+        const h = v * scale;
+        out.push({
+          x0: s.x + NW,
+          x1: t.x,
+          y0: srcOff[si],
+          y1: tgtOff[ti],
+          h,
+          color: t.color,
+          title: `${s.label} → ${t.label}: ${sFmt(v)} customers`,
+        });
+        srcOff[si] += h;
+        tgtOff[ti] += h;
+      });
+    });
+    return out;
+  };
+
+  const links = [
+    ...bands(col0, col1, (bi, oi) => bracketTot[bi] * S_BRACKETS[bi].out[S_OUTCOMES[oi].id]),
+    ...bands(col1, col2, (oi, ni) =>
+      ni === 0 ? outcomeTot[oi] * S_OUTCOMES[oi].repeat : outcomeTot[oi] * (1 - S_OUTCOMES[oi].repeat),
+    ),
+    ...bands(col2, col3, (ni, di) => (ni === 0 ? nextYes * S_DEPTS[di].share : 0)),
+  ];
+
+  const bandPath = (b: SBand) => {
+    const xc = (b.x0 + b.x1) / 2;
+    const y0t = b.y0;
+    const y0b = b.y0 + b.h;
+    const y1t = b.y1;
+    const y1b = b.y1 + b.h;
+    return `M${b.x0},${y0t} C${xc},${y0t} ${xc},${y1t} ${b.x1},${y1t} L${b.x1},${y1b} C${xc},${y1b} ${xc},${y0b} ${b.x0},${y0b} Z`;
+  };
+
+  const label = (n: SNode, side: "left" | "right", key: string) => {
+    const x = side === "right" ? n.x + NW + 8 : n.x - 8;
+    const cy = n.y + n.h / 2;
+    return (
+      <text key={key} x={x} textAnchor={side === "right" ? "start" : "end"} fill="#212121">
+        <tspan x={x} y={cy - 2} fontSize="12.5" fontWeight="600">
+          {n.label}
+        </tspan>
+        <tspan x={x} y={cy + 12} fontSize="11" fill="#676767">
+          {sFmt(n.v)}
+        </tspan>
+      </text>
+    );
+  };
+
+  const headers: [string, number][] = [
+    ["Bracketing Type", 218],
+    ["First Order", 528],
+    ["Next Purchase?", 773],
+    ["Next Dept", 942],
+  ];
+
+  return (
+    <div className="overflow-x-auto">
+      <svg
+        viewBox="0 0 1040 560"
+        className="aspect-[1040/560] w-full min-w-[760px]"
+        role="img"
+        aria-label="Behavioral flow Sankey diagram"
+      >
+        {headers.map(([t, x]) => (
+          <text key={t} x={x} y={26} textAnchor="middle" fontSize="12.5" fontWeight="600" fill="#212121">
+            {t}
+          </text>
+        ))}
+        {links.map((b, i) => (
+          <path key={i} d={bandPath(b)} fill={b.color} fillOpacity={0.4}>
+            <title>{b.title}</title>
+          </path>
+        ))}
+        {[...col0, ...col1, ...col2, ...col3].map((n, i) => (
+          <rect key={i} x={n.x} y={n.y} width={NW} height={Math.max(n.h, 1)} rx={2.5} fill={n.color}>
+            <title>{`${n.label}: ${sFmt(n.v)} customers`}</title>
+          </rect>
+        ))}
+        {col0.map((n, i) => label(n, "right", `l0-${i}`))}
+        {col1.map((n, i) => label(n, "right", `l1-${i}`))}
+        {col2.map((n, i) => label(n, "right", `l2-${i}`))}
+        {col3.map((n, i) => label(n, "left", `l3-${i}`))}
+      </svg>
+    </div>
+  );
+}
+
+function SankeyFlow() {
+  return (
+    <Card>
+      <CardHeading
+        title="Behavioral flow"
+        subtitle="24,318 customers · rolling 12 months · Sankey view"
+      />
+      <div className="mt-4">
+        <Sankey />
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        {S_LEGEND.map((l) => (
+          <span key={l.label} className="flex items-center gap-1.5 text-[11px] text-neutral-600">
+            {l.divider && <span className="mr-1 text-neutral-300">|</span>}
+            <span className="size-2.5 rounded-[3px]" style={{ backgroundColor: l.color }} />
+            {l.label}
+          </span>
+        ))}
+      </div>
+      <p className="mt-2 text-[11px] text-neutral-600">
+        Hover any flow or node to see the customer count.
+      </p>
+    </Card>
+  );
+}
+
 export default function BehavioralFlowTab() {
   return (
     <>
+      <SankeyFlow />
       <JourneyExplorer />
       <AllPaths />
     </>

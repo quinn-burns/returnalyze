@@ -12,9 +12,18 @@ const KPIS = [
 ];
 
 const KIND = [
-  { label: "Size", pct: 58, color: "#dc2828" },
-  { label: "Color", pct: 21, color: "#4169e1" },
+  { label: "Size", pct: 58, color: "#4169e1" },
+  { label: "Color", pct: 21, color: "#85a1ff" },
 ];
+
+// Re-return severity: worst offenders deepen toward the "Returned" red, lighter
+// ones stay a soft red — so the whole chart reads as a drill-down of returns.
+function reReturnShade(t: number) {
+  const light = [254, 202, 202]; // #fecaca
+  const deep = [153, 27, 27]; // #991b1b
+  const c = light.map((a, i) => Math.round(a + (deep[i] - a) * t));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
 
 const COME_BACK = [
   { style: "Triumph 23", pct: 81.82, detail: "180 of 220 exch." },
@@ -119,7 +128,9 @@ function ExchangeOutcome() {
 }
 
 function ComeBack() {
-  const max = Math.max(...COME_BACK.map((s) => s.pct));
+  const pcts = COME_BACK.map((s) => s.pct);
+  const max = Math.max(...pcts);
+  const min = Math.min(...pcts);
   return (
     <Card>
       <div className="flex flex-col gap-1">
@@ -139,8 +150,11 @@ function ComeBack() {
             <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-neutral-100">
               <div
                 data-anim-bar
-                className="h-4 rounded-[4px] bg-danger-600"
-                style={{ width: `${(s.pct / max) * 100}%` }}
+                className="h-4 rounded-[4px]"
+                style={{
+                  width: `${(s.pct / max) * 100}%`,
+                  backgroundColor: reReturnShade(max === min ? 1 : (s.pct - min) / (max - min)),
+                }}
               />
             </div>
             <span className="w-44 shrink-0 text-right text-xs text-neutral-600">
