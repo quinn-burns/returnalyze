@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FilterButton } from "../overview/Buttons";
 import { ActionModalProvider } from "./ActionSubmit";
 import { AiInsight, TakeAction, useReveal } from "./parts";
 import {
@@ -193,7 +194,7 @@ function Header() {
 
 function FilterBar({ tab }: { tab: Tab }) {
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-center gap-4">
       <FilterSelect label="Brand" options={BRAND_OPTS} />
       <FilterSelect label="Country" options={COUNTRY_OPTS} />
       <FilterSelect label="Product Category" options={CATEGORY_OPTS} />
@@ -204,6 +205,10 @@ function FilterBar({ tab }: { tab: Tab }) {
         </>
       ) : null}
       <FilterSelect label="Period" options={PERIOD_OPTS} />
+      <div className="ml-auto flex items-center gap-4">
+        <FilterButton label="Apply Filters" disabled />
+        <FilterButton label="Reset" disabled />
+      </div>
     </div>
   );
 }
