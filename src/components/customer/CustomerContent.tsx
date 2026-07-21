@@ -91,11 +91,11 @@ const KPIS: { label: string; value: string; change: string; trend: Trend }[] = [
 // both size and color, so these shares overlap and add to more than 100%.
 const BRACKETED_TOTAL = "171K";
 const TYPE_BREAKDOWN = [
-  // Nominal categories: primary blue + brand teal, the two style-guide hues not
-  // already carrying meaning (green/amber/red are reserved for outcomes).
+  // Nominal categories: primary blue + warning-600 orange (a deeper orange than
+  // the amber used for "Kept some", so the two stay distinguishable).
   // The Exchange "what kind?" chart uses these same three colors.
   { label: "Size", pct: 65, orders: "111K", color: "#4169e1" },
-  { label: "Color", pct: 51, orders: "87K", color: "#27cba7" },
+  { label: "Color", pct: 51, orders: "87K", color: "#db7706" },
   { label: "Other", pct: 2, orders: "3K", color: "#ababab" },
 ];
 
