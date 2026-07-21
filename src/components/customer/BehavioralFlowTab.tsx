@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeading } from "./parts";
+import { Card, CardHeading, Pagination, usePaged } from "./parts";
+import { seeded } from "./filler";
 
 /* ----------------------------- model ----------------------------- */
 
@@ -241,6 +242,38 @@ const PATHS: PathRow[] = [
   { bracketing: "Color", firstOrder: "Returned All", nextPurchase: "No Next Purchase", nextDept: "—", customers: 402, netValue: "−$6.1K", perCust: "−$15", positive: false },
 ];
 
+/** Fill out the remaining bracket x outcome x dept combinations so the table pages. */
+function padPaths(base: PathRow[], count: number): PathRow[] {
+  const out = [...base];
+  const brackets = ["Size", "Color", "Both", "No Bracketing"];
+  const orders = ["Returned All", "Kept Some", "Kept All"];
+  const dests = ["W Denim", "W Tops", "Accessories", "Mens", "Other", "\u2014"];
+  for (const b of brackets) {
+    for (const o of orders) {
+      for (const d of dests) {
+        if (out.length >= count) return out;
+        if (out.some((p) => p.bracketing === b && p.firstOrder === o && p.nextDept === d)) continue;
+        const key = `${b}|${o}|${d}`;
+        const cust = Math.round(seeded(key, 61, 40, 900));
+        const per = Math.round(seeded(key, 62, -30, 460));
+        const net = (cust * per) / 1000;
+        out.push({
+          bracketing: b,
+          firstOrder: o,
+          nextPurchase: d === "\u2014" ? "No Next Purchase" : "Next Purchase",
+          nextDept: d,
+          customers: cust,
+          netValue: `${net < 0 ? "\u2212" : ""}$${Math.abs(net).toFixed(1)}K`,
+          perCust: `${per < 0 ? "\u2212" : ""}$${Math.abs(per)}`,
+          positive: per >= 0,
+        });
+      }
+    }
+  }
+  return out;
+}
+const PATHS_ALL = padPaths(PATHS, 48);
+
 function ValuePill({ text, positive }: { text: string; positive: boolean }) {
   return (
     <span
@@ -254,6 +287,7 @@ function ValuePill({ text, positive }: { text: string; positive: boolean }) {
 }
 
 function AllPaths() {
+  const { slice, page, setPage, total, pageSize } = usePaged(PATHS_ALL, 12);
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
@@ -274,7 +308,7 @@ function AllPaths() {
             </tr>
           </thead>
           <tbody>
-            {PATHS.map((p, i) => (
+            {slice.map((p, i) => (
               <tr key={i} className="border-b border-primary-50 last:border-b-0">
                 <td className="whitespace-nowrap py-2.5 pr-3 font-medium text-neutral-800">{p.bracketing}</td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-neutral-700">{p.firstOrder}</td>
@@ -292,6 +326,7 @@ function AllPaths() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pageSize={pageSize} total={total} onChange={setPage} />
     </Card>
   );
 }

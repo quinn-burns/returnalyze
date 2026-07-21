@@ -461,7 +461,7 @@ export default function SustainabilityContent() {
         <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
           <FilterBar />
           <MissionBanner />
-          <AiInsight>
+          <AiInsight title="Sustainability Insights">
             Returnalyze prevented{" "}
             <span className="font-semibold text-neutral-800">12,400 returns</span>{" "}this period —
             310 t CO₂e that was never emitted and $2.1M of margin that stayed booked. Prevention now

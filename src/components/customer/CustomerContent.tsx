@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { ActionModalProvider } from "./ActionSubmit";
-import { AiInsight, Donut, TakeAction, useReveal } from "./parts";
+import { AiInsight, Donut, Pagination, TakeAction, usePaged, useReveal } from "./parts";
+import { FILLER_DEPTS, countStr, money, pctStr, seeded } from "./filler";
 import {
   BRAND_OPTS,
   COUNTRY_OPTS,
@@ -123,35 +124,67 @@ type Row = {
   opportunity: string;
 };
 
-const PROMOTE_SIZE: Row[] = [
-  { dept: "Steel Toe", revenue: "$8.0M", pct: "4.05%", orders: "4K", delta: "+$95", opportunity: "$18K" },
-  { dept: "Soft Toe", revenue: "$13.8M", pct: "6.47%", orders: "8K", delta: "+$54", opportunity: "$17K" },
-  { dept: "Composite Toe", revenue: "$12.1M", pct: "4.27%", orders: "4K", delta: "+$73", opportunity: "$15K" },
-];
+const PROMOTE_SIZE: Row[] = padRows(
+  [
+    { dept: "Steel Toe", revenue: "$8.0M", pct: "4.05%", orders: "4K", delta: "+$95", opportunity: "$18K" },
+    { dept: "Soft Toe", revenue: "$13.8M", pct: "6.47%", orders: "8K", delta: "+$54", opportunity: "$17K" },
+    { dept: "Composite Toe", revenue: "$12.1M", pct: "4.27%", orders: "4K", delta: "+$73", opportunity: "$15K" },
+  ],
+  28,
+  false,
+);
 
-const PROMOTE_COLOR: Row[] = [
-  { dept: "Running", revenue: "$46.4M", pct: "3.63%", orders: "11K", delta: "+$88", opportunity: "$48K" },
-  { dept: "Casual", revenue: "$28.0M", pct: "5.53%", orders: "17K", delta: "+$49", opportunity: "$39K" },
-  { dept: "Light Hike", revenue: "$46.1M", pct: "3.38%", orders: "12K", delta: "+$40", opportunity: "$24K" },
-];
+const PROMOTE_COLOR: Row[] = padRows(
+  [
+    { dept: "Running", revenue: "$46.4M", pct: "3.63%", orders: "11K", delta: "+$88", opportunity: "$48K" },
+    { dept: "Casual", revenue: "$28.0M", pct: "5.53%", orders: "17K", delta: "+$49", opportunity: "$39K" },
+    { dept: "Light Hike", revenue: "$46.1M", pct: "3.38%", orders: "12K", delta: "+$40", opportunity: "$24K" },
+  ],
+  28,
+  false,
+);
 
-const DISCOURAGE_SIZE: Row[] = [
-  { dept: "Light Hike", revenue: "$6.1M", pct: "4.87%", orders: "2K", delta: "−$22", opportunity: "$2K" },
-  { dept: "Running", revenue: "$7.0M", pct: "3.18%", orders: "2K", delta: "−$18", opportunity: "$1K" },
-  { dept: "Originals", revenue: "$3.3M", pct: "3.99%", orders: "1K", delta: "−$14", opportunity: "$692" },
-  { dept: "Trail Running", revenue: "$1.3M", pct: "4.13%", orders: "582", delta: "−$28", opportunity: "$587" },
-  { dept: "Casual", revenue: "$1.5M", pct: "5.93%", orders: "564", delta: "−$13", opportunity: "$382" },
-];
+const DISCOURAGE_SIZE: Row[] = padRows(
+  [
+    { dept: "Light Hike", revenue: "$6.1M", pct: "4.87%", orders: "2K", delta: "−$22", opportunity: "$2K" },
+    { dept: "Running", revenue: "$7.0M", pct: "3.18%", orders: "2K", delta: "−$18", opportunity: "$1K" },
+    { dept: "Originals", revenue: "$3.3M", pct: "3.99%", orders: "1K", delta: "−$14", opportunity: "$692" },
+    { dept: "Trail Running", revenue: "$1.3M", pct: "4.13%", orders: "582", delta: "−$28", opportunity: "$587" },
+    { dept: "Casual", revenue: "$1.5M", pct: "5.93%", orders: "564", delta: "−$13", opportunity: "$382" },
+  ],
+  28,
+  true,
+);
+
+/** Pads a table with deterministic rows so pagination has real pages. */
+function padRows(base: Row[], count: number, negative: boolean): Row[] {
+  const out = [...base];
+  for (const dept of FILLER_DEPTS) {
+    if (out.length >= count) break;
+    if (out.some((r) => r.dept === dept)) continue;
+    const d = Math.round(seeded(dept, 3, 8, 95));
+    out.push({
+      dept,
+      revenue: money(seeded(dept, 1, 3e5, 4e7)),
+      pct: pctStr(seeded(dept, 2, 1.2, 8.4)),
+      orders: countStr(seeded(dept, 4, 120, 18000)),
+      delta: negative ? `−$${d}` : `+$${d}`,
+      opportunity: money(seeded(dept, 5, 200, 42000)),
+    });
+  }
+  return out;
+}
 
 // Even the least profitable color bracketing still earns per order, so there is
 // no opportunity from reducing it — which is the point of showing this table.
-const DISCOURAGE_COLOR: Row[] = [
+const DISCOURAGE_COLOR_BASE: Row[] = [
   { dept: "Non-Licensed", revenue: "$74K", pct: "4.85%", orders: "184", delta: "+$14", opportunity: "$0" },
   { dept: "Socks", revenue: "$110K", pct: "1.65%", orders: "127", delta: "+$17", opportunity: "$0" },
   { dept: "Licensed", revenue: "$413K", pct: "4.87%", orders: "1K", delta: "+$18", opportunity: "$0" },
   { dept: "All Other", revenue: "$1.4M", pct: "8.1%", orders: "2K", delta: "+$20", opportunity: "$0" },
   { dept: "Accessories", revenue: "$540K", pct: "5.9%", orders: "2K", delta: "+$23", opportunity: "$0" },
 ];
+const DISCOURAGE_COLOR: Row[] = padRows(DISCOURAGE_COLOR_BASE, 28, false);
 
 /* --------------------------- primitives -------------------------- */
 
@@ -425,6 +458,7 @@ function ActionTable({
   rows: Row[];
   negative?: boolean;
 }) {
+  const { slice, page, setPage, total, pageSize } = usePaged(rows, 5);
   return (
     <Card>
       <CardHeading title={title} subtitle={subtitle} />
@@ -442,7 +476,7 @@ function ActionTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {slice.map((r) => (
               <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
                 <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
@@ -464,6 +498,7 @@ function ActionTable({
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pageSize={pageSize} total={total} onChange={setPage} />
     </Card>
   );
 }
@@ -518,7 +553,7 @@ export default function CustomerContent() {
           <FilterBar tab={tab} />
           <TabBar tab={tab} onChange={setTab} />
           <p className="-mt-1 text-sm text-neutral-600">{TAB_META[tab].description}</p>
-          <AiInsight>{TAB_META[tab].insight}</AiInsight>
+          <AiInsight title={`${tab} Insights`}>{TAB_META[tab].insight}</AiInsight>
           {tab === "Bracketing" ? (
             <BracketingTab />
           ) : tab === "Exchange" ? (

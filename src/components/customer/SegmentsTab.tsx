@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Card, CardHeading, ExportButton, KpiStrip } from "./parts";
+import { Card, CardHeading, ExportButton, KpiStrip, Pagination, usePaged } from "./parts";
+import { seeded } from "./filler";
 import { ExportToastProvider, useExportToast } from "./ExportToast";
 
 /* ----------------------------- data ----------------------------- */
@@ -316,6 +317,7 @@ function SegmentImpact({ segments }: { segments: Segment[] }) {
 
 function SegmentSection({ segment }: { segment: Segment }) {
   const showToast = useExportToast();
+  const { slice, page, setPage, total, pageSize } = usePaged(padCustomers(segment), 5);
   return (
     <Card>
       <div className="flex items-start justify-between gap-3">
@@ -340,7 +342,7 @@ function SegmentSection({ segment }: { segment: Segment }) {
             </tr>
           </thead>
           <tbody>
-            {segment.customers.map((c) => (
+            {slice.map((c) => (
               <tr key={c.id} className="border-b border-primary-50 align-top last:border-b-0">
                 <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{c.id}</td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{c.revenue}</td>
@@ -354,8 +356,32 @@ function SegmentSection({ segment }: { segment: Segment }) {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pageSize={pageSize} total={total} onChange={setPage} />
     </Card>
   );
+}
+
+/** Pad each segment's customer list so pagination has real pages. */
+function padCustomers(seg: Segment): Customer[] {
+  const out = [...seg.customers];
+  const depts = ["F Outerwear", "M Knits", "F Knits", "F Sweaters", "M Wovens", "F Swim", "M Pants", "F Skirts"];
+  const items = ["Chino Pant", "Henley Tee", "Puffer Jacket", "Slim Crop Jean", "Cable Knit Sweater", "Linen Short"];
+  let i = 0;
+  while (out.length < 22) {
+    const id = `C-${100000 + Math.round(seeded(seg.name + i, 31, 100000, 899999))}`;
+    i += 1;
+    if (out.some((c) => c.id === id)) continue;
+    const d = (n: number) => depts[Math.round(seeded(id, n, 0, depts.length - 1))];
+    const it = (n: number) => items[Math.round(seeded(id, n, 0, items.length - 1))];
+    out.push({
+      id,
+      revenue: `$${Math.round(seeded(id, 41, 900, 6200)).toLocaleString()}`,
+      returnRevenue: `$${Math.round(seeded(id, 42, 300, 3100)).toLocaleString()}`,
+      depts: `${d(43)} (${Math.round(seeded(id, 44, 2, 9))}) \u00b7 ${d(45)} (${Math.round(seeded(id, 46, 2, 9))})`,
+      items: `${it(47)} (${Math.round(seeded(id, 48, 1, 9))}) \u00b7 ${it(49)} (${Math.round(seeded(id, 50, 1, 9))})`,
+    });
+  }
+  return out;
 }
 
 /* ----------------------------- tab ------------------------------- */

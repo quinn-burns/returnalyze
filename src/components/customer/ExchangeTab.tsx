@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardHeading, InsightLink, KpiStrip, TakeAction } from "./parts";
+import { Card, CardHeading, InsightLink, KpiStrip, Pagination, TakeAction, usePaged } from "./parts";
+import { FILLER_DEPTS, money, pctStr, seeded } from "./filler";
 
 /* ----------------------------- data ----------------------------- */
 
@@ -62,6 +63,43 @@ const IMPROVE_COLOR: GuideRow[] = [
   { dept: "Performance Tops", revenue: "$11K", exchPct: "0.69%", returnedPct: "50%", opportunity: "$269" },
   { dept: "Sandals", revenue: "$7K", exchPct: "1.32%", returnedPct: "50%", opportunity: "$172" },
 ];
+
+/** Pad the demo tables so pagination has real pages to move through. */
+function padPromo(base: PromoRow[], count: number): PromoRow[] {
+  const out = [...base];
+  for (const dept of FILLER_DEPTS) {
+    if (out.length >= count) break;
+    if (out.some((r) => r.dept === dept)) continue;
+    out.push({
+      dept,
+      revenue: money(seeded(dept, 11, 4e5, 9e6)),
+      pct: pctStr(seeded(dept, 12, 0.6, 3.8)),
+      opportunity: money(seeded(dept, 13, 400, 16000)),
+    });
+  }
+  return out;
+}
+
+function padGuide(base: GuideRow[], count: number): GuideRow[] {
+  const out = [...base];
+  for (const dept of FILLER_DEPTS) {
+    if (out.length >= count) break;
+    if (out.some((r) => r.dept === dept)) continue;
+    out.push({
+      dept,
+      revenue: money(seeded(dept, 21, 5e3, 2e5)),
+      exchPct: pctStr(seeded(dept, 22, 0.2, 1.9)),
+      returnedPct: pctStr(seeded(dept, 23, 25, 100)),
+      opportunity: money(seeded(dept, 24, 120, 5200)),
+    });
+  }
+  return out;
+}
+
+const PROMOTE_SIZE_ALL = padPromo(PROMOTE_SIZE, 24);
+const PROMOTE_COLOR_ALL = padPromo(PROMOTE_COLOR, 24);
+const IMPROVE_SIZE_ALL = padGuide(IMPROVE_SIZE, 24);
+const IMPROVE_COLOR_ALL = padGuide(IMPROVE_COLOR, 24);
 
 /* --------------------------- charts ------------------------------ */
 
@@ -167,6 +205,7 @@ function PromoteTable({
   pctLabel: string;
   rows: PromoRow[];
 }) {
+  const { slice, page, setPage, total, pageSize } = usePaged(rows, 5);
   return (
     <Card>
       <CardHeading title={title} subtitle={subtitle} />
@@ -182,7 +221,7 @@ function PromoteTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {slice.map((r) => (
               <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
                 <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
@@ -198,6 +237,7 @@ function PromoteTable({
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pageSize={pageSize} total={total} onChange={setPage} />
     </Card>
   );
 }
@@ -217,6 +257,7 @@ function GuidanceTable({
   returnedLabel: string;
   rows: GuideRow[];
 }) {
+  const { slice, page, setPage, total, pageSize } = usePaged(rows, 5);
   return (
     <Card>
       <CardHeading title={title} subtitle={subtitle} action={<InsightLink label={insight} />} />
@@ -233,7 +274,7 @@ function GuidanceTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {slice.map((r) => (
               <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
                 <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
@@ -252,6 +293,7 @@ function GuidanceTable({
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pageSize={pageSize} total={total} onChange={setPage} />
     </Card>
   );
 }
@@ -271,13 +313,13 @@ export default function ExchangeTab() {
         title="Promote size exchanges"
         subtitle="Low size-exchange rate — opportunity from increasing (→1.05×)"
         pctLabel="% Ret. Exch. Size"
-        rows={PROMOTE_SIZE}
+        rows={PROMOTE_SIZE_ALL}
       />
       <PromoteTable
         title="Promote color exchanges"
         subtitle="Low color-exchange rate — opportunity from increasing (→1.05×)"
         pctLabel="% Ret. Exch. Color"
-        rows={PROMOTE_COLOR}
+        rows={PROMOTE_COLOR_ALL}
       />
       <GuidanceTable
         title="Improve size guidance"
@@ -285,7 +327,7 @@ export default function ExchangeTab() {
         insight="Size fit insights by style"
         pctLabel="% Ret. Exch. Size"
         returnedLabel="% Size Exch. Returned"
-        rows={IMPROVE_SIZE}
+        rows={IMPROVE_SIZE_ALL}
       />
       <GuidanceTable
         title="Improve color guidance"
@@ -293,7 +335,7 @@ export default function ExchangeTab() {
         insight="Color insights by style"
         pctLabel="% Ret. Exch. Color"
         returnedLabel="% Color Exch. Returned"
-        rows={IMPROVE_COLOR}
+        rows={IMPROVE_COLOR_ALL}
       />
     </>
   );

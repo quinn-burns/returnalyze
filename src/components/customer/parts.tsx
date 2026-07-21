@@ -75,7 +75,7 @@ export function CardHeading({
 }
 
 /** AI-generated insight callout, matching the Overview "AI Returns Summary" card. */
-export function AiInsight({ children }: { children: ReactNode }) {
+export function AiInsight({ title = "AI Insight", children }: { title?: string; children: ReactNode }) {
   return (
     <div className="rounded-lg border border-primary-100 bg-primary-50 p-4">
       <div className="flex items-center gap-1.5">
@@ -83,9 +83,74 @@ export function AiInsight({ children }: { children: ReactNode }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/overview/ai-logo.svg" alt="" className="size-[17px]" />
         </span>
-        <h2 className="text-xl font-semibold text-primary-700">AI Insight</h2>
+        <h2 className="text-xl font-semibold text-primary-700">{title}</h2>
       </div>
       <p className="mt-1.5 w-full text-sm leading-5 text-neutral-700">{children}</p>
+    </div>
+  );
+}
+
+/* --------------------------- pagination -------------------------- */
+
+/** Slices rows for the current page and keeps the page in range. */
+export function usePaged<T>(rows: T[], pageSize: number) {
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+  const current = Math.min(page, pageCount - 1);
+  return {
+    slice: rows.slice(current * pageSize, current * pageSize + pageSize),
+    page: current,
+    setPage,
+    total: rows.length,
+    pageSize,
+  };
+}
+
+export function Pagination({
+  page,
+  pageSize,
+  total,
+  onChange,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  onChange: (page: number) => void;
+}) {
+  const last = Math.max(0, Math.ceil(total / pageSize) - 1);
+  const start = total === 0 ? 0 : page * pageSize + 1;
+  const end = Math.min((page + 1) * pageSize, total);
+  const arrow =
+    "flex size-7 items-center justify-center rounded text-neutral-600 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-300 disabled:hover:bg-transparent";
+  return (
+    <div className="mt-3 flex items-center justify-end gap-3 text-xs text-neutral-600">
+      <span>
+        {start}-{end} of {total}
+      </span>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          aria-label="Previous page"
+          disabled={page <= 0}
+          onClick={() => onChange(page - 1)}
+          className={arrow}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          aria-label="Next page"
+          disabled={page >= last}
+          onClick={() => onChange(page + 1)}
+          className={arrow}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
