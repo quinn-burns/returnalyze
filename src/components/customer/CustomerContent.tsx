@@ -91,10 +91,11 @@ const KPIS: { label: string; value: string; change: string; trend: Trend }[] = [
 // both size and color, so these shares overlap and add to more than 100%.
 const BRACKETED_TOTAL = "171K";
 const TYPE_BREAKDOWN = [
-  // Typed by profitability so the mix reads the same way as the profit and
-  // outcome charts: Size loses money (red), Color is profitable (green).
-  { label: "Size", pct: 65, orders: "111K", color: "#dc2828" },
-  { label: "Color", pct: 51, orders: "87K", color: "#059467" },
+  // Nominal categories, so they use a qualitative palette in hue space the app
+  // doesn't use semantically — green/amber/red stay reserved for outcomes.
+  // Same three colors are used by the Exchange "what kind?" chart.
+  { label: "Size", pct: 65, orders: "111K", color: "#4169e1" },
+  { label: "Color", pct: 51, orders: "87K", color: "#a855f7" },
   { label: "Other", pct: 2, orders: "3K", color: "#ababab" },
 ];
 

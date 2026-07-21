@@ -12,8 +12,9 @@ const KPIS = [
 ];
 
 const KIND = [
-  { label: "Size", pct: 58, color: "#dc2828" },
-  { label: "Color", pct: 21, color: "#059467" },
+  // Matches the "What kind of bracketing?" donut on the Bracketing tab.
+  { label: "Size", pct: 58, color: "#4169e1" },
+  { label: "Color", pct: 21, color: "#a855f7" },
 ];
 
 // Ombre tied to the Returned red — the worst re-return rate is the deepest.
