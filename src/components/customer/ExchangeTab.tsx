@@ -17,14 +17,6 @@ const KIND = [
   { label: "Color", pct: 21, color: "#db7706" },
 ];
 
-// Ombre tied to the Returned red — the worst re-return rate is the deepest.
-function comeBackShade(t: number) {
-  const light = [252, 165, 165]; // #fca5a5
-  const deep = [220, 40, 40]; // #dc2828
-  const c = light.map((a, i) => Math.round(a + (deep[i] - a) * t));
-  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
-}
-
 const COME_BACK = [
   { style: "Triumph 23", pct: 81.82, detail: "180 of 220 exch." },
   { style: "Endorphin Speed 5", pct: 76.68, detail: "342 of 446 exch." },
@@ -128,9 +120,7 @@ function ExchangeOutcome() {
 }
 
 function ComeBack() {
-  const pcts = COME_BACK.map((s) => s.pct);
-  const max = Math.max(...pcts);
-  const min = Math.min(...pcts);
+  const max = Math.max(...COME_BACK.map((s) => s.pct));
   return (
     <Card>
       <div className="flex flex-col gap-1">
@@ -147,14 +137,11 @@ function ComeBack() {
             <span className="w-40 shrink-0 truncate text-sm font-medium text-neutral-800">
               {s.style}
             </span>
-            <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-[#fef2f2]">
+            <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-neutral-100">
               <div
                 data-anim-bar
-                className="h-4 rounded-[4px]"
-                style={{
-                  width: `${(s.pct / max) * 100}%`,
-                  backgroundColor: comeBackShade(max === min ? 1 : (s.pct - min) / (max - min)),
-                }}
+                className="h-4 rounded-[4px] bg-danger-600"
+                style={{ width: `${(s.pct / max) * 100}%` }}
               />
             </div>
             <span className="w-44 shrink-0 text-right text-xs text-neutral-600">
