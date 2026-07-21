@@ -277,7 +277,7 @@ export default function MyAccountContent() {
   const [tab, setTab] = useState<TabId>("overview");
 
   return (
-    <div className="flex min-h-screen flex-col gap-4 bg-neutral-0 px-4 pb-10">
+    <div className="flex min-h-screen flex-col gap-4 bg-neutral-0 px-4 pb-24">
       <header className="flex flex-col gap-1 py-6">
         <h1 className="text-4xl font-bold text-neutral-800">My Account</h1>
         <p className="text-sm text-neutral-700">Configure your preferences.</p>

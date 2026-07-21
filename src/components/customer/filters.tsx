@@ -92,7 +92,7 @@ export function FilterSelect({ label, options }: { label: string; options: strin
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx?.resetSignal]);
   return (
-    <div className="relative flex h-10 min-w-[160px] flex-1">
+    <div className="relative flex h-10 min-w-[120px] flex-1">
       <select
         aria-label={label}
         value={value}

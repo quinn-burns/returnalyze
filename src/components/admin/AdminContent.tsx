@@ -390,7 +390,7 @@ function AiCreditsTab() {
 export default function AdminContent() {
   const [tab, setTab] = useState<Tab>("team");
   return (
-    <div className="flex flex-col gap-4 px-4 pb-10">
+    <div className="flex flex-col gap-4 px-4 pb-24">
       <Header />
       <TabBar tab={tab} onChange={setTab} />
       {tab === "team" ? <TeamMembersTab /> : <AiCreditsTab />}

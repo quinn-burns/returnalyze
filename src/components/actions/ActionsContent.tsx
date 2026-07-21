@@ -166,13 +166,13 @@ function Header() {
 function FilterBar() {
   return (
     <FilterBarProvider>
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3">
         <FilterSelect label="Brand" options={BRAND_OPTS} />
         {FILTERS.map((f) => (
           <FilterDropdown key={f} label={f} />
         ))}
         <FilterSelect label="Period" options={PERIOD_OPTS} />
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex shrink-0 items-center gap-3">
           <ApplyFiltersButton />
           <ResetFiltersButton />
         </div>
@@ -256,7 +256,7 @@ export default function ActionsContent() {
   return (
     <div className="min-h-screen bg-neutral-0">
       <Header />
-      <div className="page-enter flex flex-col gap-5 px-4 pb-10 pt-3.5">
+      <div className="page-enter flex flex-col gap-5 px-4 pb-24 pt-3.5">
         <FilterBar />
         <Toolbar onAddAction={() => setCreateOpen(true)} />
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">

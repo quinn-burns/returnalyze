@@ -163,12 +163,12 @@ function Header() {
 function FilterBar() {
   return (
     <FilterBarProvider>
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3">
         <FilterSelect label="Brand" options={BRAND_OPTS} />
         <FilterSelect label="Country" options={COUNTRY_OPTS} />
         <FilterSelect label="Product Category" options={CATEGORY_OPTS} />
         <FilterSelect label="Period" options={PERIOD_OPTS} />
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex shrink-0 items-center gap-3">
           <ApplyFiltersButton />
           <ResetFiltersButton />
         </div>
@@ -458,7 +458,7 @@ export default function SustainabilityContent() {
     <ActionModalProvider>
       <div className="min-h-screen bg-neutral-0">
         <Header />
-        <div className="flex flex-col gap-5 px-4 pb-10 pt-3.5">
+        <div className="flex flex-col gap-5 px-4 pb-24 pt-3.5">
           <FilterBar />
           <MissionBanner />
           <AiInsight title="Sustainability Insights">
