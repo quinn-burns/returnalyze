@@ -143,6 +143,16 @@ const DISCOURAGE_SIZE: Row[] = [
   { dept: "Casual", revenue: "$1.5M", pct: "5.93%", orders: "564", delta: "−$13", opportunity: "$382" },
 ];
 
+// Even the least profitable color bracketing still earns per order, so there is
+// no opportunity from reducing it — which is the point of showing this table.
+const DISCOURAGE_COLOR: Row[] = [
+  { dept: "Non-Licensed", revenue: "$74K", pct: "4.85%", orders: "184", delta: "+$14", opportunity: "$0" },
+  { dept: "Socks", revenue: "$110K", pct: "1.65%", orders: "127", delta: "+$17", opportunity: "$0" },
+  { dept: "Licensed", revenue: "$413K", pct: "4.87%", orders: "1K", delta: "+$18", opportunity: "$0" },
+  { dept: "All Other", revenue: "$1.4M", pct: "8.1%", orders: "2K", delta: "+$20", opportunity: "$0" },
+  { dept: "Accessories", revenue: "$540K", pct: "5.9%", orders: "2K", delta: "+$23", opportunity: "$0" },
+];
+
 /* --------------------------- primitives -------------------------- */
 
 function Pill({ change, trend }: { change: string; trend: Trend }) {
@@ -485,6 +495,12 @@ function BracketingTab() {
         pctLabel="% Orders Brkt. Size"
         rows={DISCOURAGE_SIZE}
         negative
+      />
+      <ActionTable
+        title="Discourage color bracketing"
+        subtitle="Least profitable color bracketing — opportunity from reducing (→0.95×)"
+        pctLabel="% Orders Brkt. Color"
+        rows={DISCOURAGE_COLOR}
       />
     </>
   );
