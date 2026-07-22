@@ -416,7 +416,7 @@ function Sankey() {
 
   const W = 1240;
   const H = 470;
-  const colW = 16;
+  const colW = 20;
   const cols = [60, 430, 800, 1160];
   const top = 50;
   const scale = (H - top - 14 - 5 * 6) / SANKEY_TOTAL;
@@ -570,6 +570,15 @@ function Sankey() {
     });
   };
 
+  // Ribbons are click targets too: a flow names both ends of the step it
+  // represents, so clicking one drills straight to that path.
+  const pickPath = (src: string, dst: string) => {
+    const st = stageOf(src);
+    if (st === "bracket") setSel({ bracket: src, outcome: dst });
+    else if (st === "outcome") setSel((p) => ({ bracket: p.bracket, outcome: src, next: dst }));
+    else setSel((p) => ({ bracket: p.bracket, outcome: p.outcome, next: "next" }));
+  };
+
   const nameOf = (id: string) =>
     [...S_BRACKETS, ...S_OUTCOMES, ...S_DEPTS].find((n) => n.id === id)?.label ??
     (id === "next" ? "Next Purchase" : "No Next Purchase");
@@ -673,6 +682,7 @@ function Sankey() {
               fill={r.l.color}
               fillOpacity={op}
               style={{ cursor: "pointer", transition: "fill-opacity 120ms" }}
+              onClick={() => pickPath(r.l.src, r.l.dst)}
               onMouseEnter={() => {
                 setHover({ kind: "rib", i });
                 setTip({
@@ -701,15 +711,8 @@ function Sankey() {
                 fill={n.c}
                 stroke={crumbs.includes(n.id) ? "#212121" : "none"}
                 strokeWidth={crumbs.includes(n.id) ? 1.5 : 0}
-                style={{
-                  cursor: stageOf(n.id) === "dept" ? "default" : "pointer",
-                  transition: "y 260ms, height 260ms",
-                }}
-                onClick={() => pick(n.id)}
-                onMouseEnter={() => {
-                  setHover({ kind: "node", id: n.id });
-                  setTip({ title: n.label, cust: n.v, avg: perNodeVal[n.id] });
-                }}
+                pointerEvents="none"
+                style={{ transition: "y 260ms, height 260ms" }}
               />
               {h > 22 ? (
                 <>
@@ -725,6 +728,21 @@ function Sankey() {
                   {n.label} · {sFmt(n.v)}
                 </text>
               )}
+              {/* Transparent target covering the bar and its label. The bar alone
+                  is ~11 real pixels wide, far too thin to aim at. */}
+              <rect
+                x={left ? n.x - 150 : n.x - 8}
+                y={Math.min(n.y0, mid - 11)}
+                width={150 + colW + 8}
+                height={Math.max(h, 22)}
+                fill="transparent"
+                style={{ cursor: stageOf(n.id) === "dept" ? "default" : "pointer" }}
+                onClick={() => pick(n.id)}
+                onMouseEnter={() => {
+                  setHover({ kind: "node", id: n.id });
+                  setTip({ title: n.label, cust: n.v, avg: perNodeVal[n.id] });
+                }}
+              />
             </g>
           );
         })}
@@ -749,7 +767,7 @@ function Sankey() {
         ) : crumbs.length ? (
           "Every column to the right has been recounted for this path — click a node again to step back out."
         ) : (
-          "Hover for customers and value; click a node to drill into its journey."
+          "Hover for customers and value; click any bar, label or flow to drill into that journey."
         )}
       </div>
     </div>
