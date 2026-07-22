@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardHeading, Pagination, usePaged } from "./parts";
 import { seeded } from "./filler";
 
@@ -122,9 +122,19 @@ function ValuePill({ text, positive }: { text: string; positive: boolean }) {
 
 function AllPaths() {
   const { slice, page, setPage, total, pageSize } = usePaged(PATHS_ALL, 18);
+  const topRef = useRef<HTMLDivElement>(null);
+  // Eighteen rows is taller than the viewport, so paging from the arrows at the
+  // bottom would otherwise drop you into the middle of the next page.
+  const goToPage = (p: number) => {
+    setPage(p);
+    topRef.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+  };
   return (
     <Card>
-      <div className="flex items-center justify-between gap-3">
+      <div ref={topRef} className="flex scroll-mt-6 items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-neutral-800">All paths</h2>
         <span className="text-xs text-neutral-600">Sort value: Net</span>
       </div>
@@ -189,7 +199,7 @@ function AllPaths() {
           </tbody>
         </table>
       </div>
-      <Pagination page={page} pageSize={pageSize} total={total} onChange={setPage} />
+      <Pagination page={page} pageSize={pageSize} total={total} onChange={goToPage} />
     </Card>
   );
 }
