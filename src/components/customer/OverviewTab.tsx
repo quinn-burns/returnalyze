@@ -47,7 +47,7 @@ const CONNECTIONS: Link[] = [
     ],
     from: ["Bracketing", "Behavioral Flow"],
     tab: "Behavioral Flow",
-    anchor: "flow-sankey",
+    anchor: "flow-journeys",
     tone: "bad",
   },
   {

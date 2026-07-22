@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Card, CardHeading, Pagination, usePaged } from "./parts";
-import { seeded } from "./filler";
+import { useState } from "react";
+import { Card, CardHeading } from "./parts";
+import JourneysModule, { buildJourneys } from "./JourneysModule";
 
 /* ----------------------------- model ----------------------------- */
 
@@ -212,214 +212,6 @@ function JourneyExplorer() {
   );
 }
 
-/* -------------------------- all paths ---------------------------- */
-
-type PathRow = {
-  bracketing: string;
-  firstOrder: string;
-  nextPurchase: string;
-  nextDept: string;
-  customers: number;
-  netValue: string;
-  perCust: string;
-  positive: boolean;
-};
-
-const PATHS: PathRow[] = [
-  { bracketing: "Size", firstOrder: "Returned All", nextPurchase: "Next Purchase", nextDept: "W Denim", customers: 118, netValue: "$16.2K", perCust: "$137", positive: true },
-  { bracketing: "Size", firstOrder: "Returned All", nextPurchase: "Next Purchase", nextDept: "W Tops", customers: 96, netValue: "$8.6K", perCust: "$90", positive: true },
-  { bracketing: "Size", firstOrder: "Returned All", nextPurchase: "Next Purchase", nextDept: "Accessories", customers: 88, netValue: "$3.7K", perCust: "$42", positive: true },
-  { bracketing: "Size", firstOrder: "Returned All", nextPurchase: "Next Purchase", nextDept: "Mens", customers: 74, netValue: "$8.4K", perCust: "$114", positive: true },
-  { bracketing: "Size", firstOrder: "Returned All", nextPurchase: "No Next Purchase", nextDept: "—", customers: 833, netValue: "−$11.7K", perCust: "−$14", positive: false },
-  { bracketing: "Size", firstOrder: "Kept Some", nextPurchase: "Next Purchase", nextDept: "W Denim", customers: 336, netValue: "$56.2K", perCust: "$167", positive: true },
-  { bracketing: "Size", firstOrder: "Kept Some", nextPurchase: "Next Purchase", nextDept: "W Tops", customers: 189, netValue: "$37.7K", perCust: "$200", positive: true },
-  { bracketing: "Size", firstOrder: "Kept Some", nextPurchase: "Next Purchase", nextDept: "Accessories", customers: 128, netValue: "$28.2K", perCust: "$126", positive: true },
-  { bracketing: "Size", firstOrder: "Kept Some", nextPurchase: "No Next Purchase", nextDept: "—", customers: 608, netValue: "$37.5K", perCust: "$84", positive: true },
-  { bracketing: "Size", firstOrder: "Kept All", nextPurchase: "Next Purchase", nextDept: "W Denim", customers: 468, netValue: "$139.1K", perCust: "$418", positive: true },
-  { bracketing: "Size", firstOrder: "Kept All", nextPurchase: "Next Purchase", nextDept: "W Tops", customers: 380, netValue: "$109.4K", perCust: "$396", positive: true },
-  { bracketing: "Size", firstOrder: "Kept All", nextPurchase: "Next Purchase", nextDept: "Accessories", customers: 301, netValue: "$47.6K", perCust: "$185", positive: true },
-  { bracketing: "Color", firstOrder: "Kept All", nextPurchase: "Next Purchase", nextDept: "W Denim", customers: 512, netValue: "$168.3K", perCust: "$462", positive: true },
-  { bracketing: "Color", firstOrder: "Returned All", nextPurchase: "No Next Purchase", nextDept: "—", customers: 402, netValue: "−$6.1K", perCust: "−$15", positive: false },
-];
-
-/** Fill out the remaining bracket x outcome x dept combinations so the table pages. */
-function padPaths(base: PathRow[], count: number): PathRow[] {
-  const out = [...base];
-  const brackets = ["Size", "Color", "Size + Color", "No Bracketing"];
-  const orders = ["Returned All", "Kept Some", "Kept All"];
-  const dests = ["W Denim", "W Tops", "Accessories", "Mens", "Other", "\u2014"];
-  for (const b of brackets) {
-    for (const o of orders) {
-      for (const d of dests) {
-        if (out.length >= count) return out;
-        if (out.some((p) => p.bracketing === b && p.firstOrder === o && p.nextDept === d)) continue;
-        const key = `${b}|${o}|${d}`;
-        const cust = Math.round(seeded(key, 61, 40, 900));
-        const per = Math.round(seeded(key, 62, -30, 460));
-        const net = (cust * per) / 1000;
-        out.push({
-          bracketing: b,
-          firstOrder: o,
-          nextPurchase: d === "\u2014" ? "No Next Purchase" : "Next Purchase",
-          nextDept: d,
-          customers: cust,
-          netValue: `${net < 0 ? "\u2212" : ""}$${Math.abs(net).toFixed(1)}K`,
-          perCust: `${per < 0 ? "\u2212" : ""}$${Math.abs(per)}`,
-          positive: per >= 0,
-        });
-      }
-    }
-  }
-  return out;
-}
-// Column order mirrors the Sankey's stacking, so the table reads top-to-bottom
-// the way the chart reads down each column.
-const B_ORDER = ["Size", "Color", "Size + Color", "No Bracketing"];
-const O_ORDER = ["Returned All", "Kept Some", "Kept All"];
-const D_ORDER = ["W Denim", "W Tops", "Accessories", "Mens", "Other", "\u2014"];
-const rank = (list: string[], v: string) => {
-  const i = list.indexOf(v);
-  return i === -1 ? list.length : i;
-};
-const PATHS_ALL = padPaths(PATHS, 72).sort(
-  (a, b) =>
-    rank(B_ORDER, a.bracketing) - rank(B_ORDER, b.bracketing) ||
-    rank(O_ORDER, a.firstOrder) - rank(O_ORDER, b.firstOrder) ||
-    rank(D_ORDER, a.nextDept) - rank(D_ORDER, b.nextDept),
-);
-
-/** Chart colours, keyed by the label the table prints. */
-const ROW_COLOR: Record<string, string> = {
-  Size: "#454545",
-  Color: "#8a8a8a",
-  "Size + Color": "#ababab",
-  "No Bracketing": "#dedede",
-  "Returned All": "#0729a5",
-  "Kept Some": "#4169e1",
-  "Kept All": "#85a1ff",
-  "W Denim": "#b45309",
-  "W Tops": "#d97706",
-  Accessories: "#f59f0a",
-  Mens: "#fbbf24",
-  Other: "#fcd34d",
-};
-
-/** The inset ring keeps the palest chips (No Bracketing) legible on white. */
-function Dot({ label }: { label: string }) {
-  const c = ROW_COLOR[label];
-  if (!c) return null;
-  return (
-    <span
-      className="mr-2 inline-block size-2 shrink-0 rounded-full ring-1 ring-inset ring-black/15 align-middle"
-      style={{ backgroundColor: c }}
-    />
-  );
-}
-
-function ValuePill({ text, positive }: { text: string; positive: boolean }) {
-  return (
-    <span
-      className={`inline-flex rounded px-1.5 py-0.5 text-xs font-semibold ${
-        positive ? "bg-success-50 text-success-600" : "bg-danger-50 text-danger-600"
-      }`}
-    >
-      {text}
-    </span>
-  );
-}
-
-function AllPaths() {
-  const { slice, page, setPage, total, pageSize } = usePaged(PATHS_ALL, 18);
-  const topRef = useRef<HTMLDivElement>(null);
-  const wantScroll = useRef(false);
-  // Eighteen rows is taller than the viewport, so paging from the arrows at the
-  // bottom would otherwise drop you into the middle of the next page. Scroll
-  // after the commit, not inside the click: a smooth scroll is asynchronous, so
-  // starting it against the outgoing rows leaves it racing the re-render.
-  const goToPage = (p: number) => {
-    wantScroll.current = true;
-    setPage(p);
-  };
-  useEffect(() => {
-    if (!wantScroll.current) return;
-    wantScroll.current = false;
-    topRef.current?.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [page]);
-  return (
-    <Card>
-      <div ref={topRef} className="flex scroll-mt-6 items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-neutral-800">All paths</h2>
-        <span className="text-xs text-neutral-600">Sort value: Net</span>
-      </div>
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-neutral-200 text-neutral-600">
-              <th className="whitespace-nowrap py-2 pr-3 font-normal">Bracketing</th>
-              <th className="whitespace-nowrap px-3 py-2 font-normal">First Order</th>
-              <th className="whitespace-nowrap px-3 py-2 font-normal">Next Purchase?</th>
-              <th className="whitespace-nowrap px-3 py-2 font-normal">Next Dept</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Customers</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Net Value</th>
-              <th className="whitespace-nowrap py-2 pl-3 text-right font-normal">Per Cust.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {slice.map((p, i) => {
-              // Repeat a label only when it changes. Compared within the page so
-              // the first row of every page still names its group.
-              const showB = i === 0 || slice[i - 1].bracketing !== p.bracketing;
-              const showO = showB || slice[i - 1].firstOrder !== p.firstOrder;
-              const came = p.nextPurchase === "Next Purchase";
-              return (
-              <tr key={i} className="border-b border-primary-50 last:border-b-0">
-                <td className="whitespace-nowrap py-2.5 pr-3 font-medium text-neutral-800">
-                  {showB ? (
-                    <>
-                      <Dot label={p.bracketing} />
-                      {p.bracketing}
-                    </>
-                  ) : null}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-neutral-700">
-                  {showO ? (
-                    <>
-                      <Dot label={p.firstOrder} />
-                      {p.firstOrder}
-                    </>
-                  ) : null}
-                </td>
-                <td
-                  className="whitespace-nowrap px-3 py-2.5"
-                  style={{ color: came ? S_NEXT.next : "#ababab" }}
-                >
-                  {p.nextPurchase}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-neutral-700">
-                  <Dot label={p.nextDept} />
-                  {p.nextDept}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-right text-neutral-700">{p.customers}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-right">
-                  <ValuePill text={p.netValue} positive={p.positive} />
-                </td>
-                <td className="whitespace-nowrap py-2.5 pl-3 text-right">
-                  <ValuePill text={p.perCust} positive={p.positive} />
-                </td>
-              </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <Pagination page={page} pageSize={pageSize} total={total} onChange={goToPage} />
-    </Card>
-  );
-}
-
 /* ----------------------------- tab ------------------------------- */
 
 /* ----------------------------- sankey ---------------------------- */
@@ -444,6 +236,16 @@ const S_DEPTS = [
   { id: "mens", label: "Mens", share: 0.11, color: "#fbbf24", val: 128 },
   { id: "other", label: "Other", share: 0.08, color: "#fcd34d", val: 72 },
 ];
+
+/* One row per complete path, derived from the same constants that draw the
+   diagram below, so the list and the ribbons always agree. */
+const JOURNEYS = buildJourneys({
+  total: SANKEY_TOTAL,
+  brackets: S_BRACKETS,
+  outcomes: S_OUTCOMES,
+  next: S_NEXT,
+  depts: S_DEPTS,
+});
 
 const sFmt = (n: number) => Math.round(n).toLocaleString();
 function sMoney(v: number) {
@@ -931,26 +733,11 @@ function Sankey() {
   );
 }
 
-function SankeyFlow() {
-  return (
-    <Card id="flow-sankey">
-      <CardHeading
-        title="Behavioral flow"
-        subtitle="24,318 customers · rolling 12 months · Sankey view"
-      />
-      <div className="mt-4">
-        <Sankey />
-      </div>
-    </Card>
-  );
-}
-
 export default function BehavioralFlowTab() {
   return (
     <>
-      <SankeyFlow />
+      <JourneysModule journeys={JOURNEYS} sankey={<Sankey />} />
       <JourneyExplorer />
-      <AllPaths />
     </>
   );
 }
