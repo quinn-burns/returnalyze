@@ -41,13 +41,23 @@ export const CHART = {
   track: "#dedede", // neutral-200 (bar/donut track)
 } as const;
 
-export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
+/** `id` makes a card a deep-link target for the Overview tab's "See the data". */
+export function Card({
+  children,
+  className = "",
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
   const { ref, shown } = useReveal<HTMLElement>();
   return (
     <section
       ref={ref}
+      id={id}
       data-reveal={shown ? "in" : "out"}
-      className={`rounded-lg border border-neutral-200 bg-neutral-0 p-4 ${className}`}
+      className={`scroll-mt-6 rounded-lg border border-neutral-200 bg-neutral-0 p-4 ${className}`}
     >
       {children}
     </section>

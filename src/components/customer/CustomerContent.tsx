@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActionModalProvider } from "./ActionSubmit";
 import { AiInsight, Donut, Pagination, TakeAction, usePaged, useReveal } from "./parts";
 import { FILLER_DEPTS, countStr, money, pctStr, seeded } from "./filler";
@@ -19,13 +19,28 @@ import {
 import ExchangeTab from "./ExchangeTab";
 import SegmentsTab from "./SegmentsTab";
 import BehavioralFlowTab from "./BehavioralFlowTab";
+import OverviewTab from "./OverviewTab";
 
 /* ----------------------------- data ----------------------------- */
 
-const TABS = ["Bracketing", "Exchange", "Segments", "Behavioral Flow"] as const;
+const TABS = ["Overview", "Bracketing", "Exchange", "Segments", "Behavioral Flow"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_META: Record<Tab, { description: string; insight: React.ReactNode }> = {
+  Overview: {
+    description:
+      "The clearest finding from each area of customer behavior, with the actions they point to — and a way through to the detail behind any of it.",
+    insight: (
+      <>
+        The single biggest lever right now is{" "}
+        <span className="font-semibold text-neutral-800">size bracketing</span>: 111K orders a year
+        bracket on size and each one loses $7, while colour bracketing earns $44. Fixing size
+        guidance would also feed the two weakest areas below — your{" "}
+        <span className="font-semibold text-neutral-800">4.4% exchange recovery rate</span>{" "}and the
+        836 customers already returning half of what they buy.
+      </>
+    ),
+  },
   Bracketing: {
     description:
       "How customers order multiple sizes or colors of the same style to compare at home — and where that bracketing adds or erodes margin.",
@@ -373,7 +388,7 @@ function DivergingProfitBar({ value }: { value: number }) {
 
 function BracketingProfit() {
   return (
-    <Card>
+    <Card id="bracketing-profit">
       <CardHeading
         title="Where bracketing helps or hurts profit"
         subtitle="Average profit per order by bracketing type — green adds margin, red loses it."
@@ -544,7 +559,27 @@ function BracketingTab() {
 /* ----------------------------- page ------------------------------ */
 
 export default function CustomerContent() {
-  const [tab, setTab] = useState<Tab>("Bracketing");
+  const [tab, setTab] = useState<Tab>("Overview");
+  // Overview links carry the card they want. Switching tabs unmounts the old
+  // content, so the scroll has to wait until the new tab has actually rendered.
+  const pendingAnchor = useRef<string | null>(null);
+  const go = (next: string, anchor?: string) => {
+    pendingAnchor.current = anchor ?? null;
+    setTab(next as Tab);
+  };
+  useEffect(() => {
+    const anchor = pendingAnchor.current;
+    if (!anchor) return;
+    pendingAnchor.current = null;
+    requestAnimationFrame(() => {
+      document.getElementById(anchor)?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    });
+  }, [tab]);
   return (
     <ActionModalProvider>
       <div className="min-h-screen bg-neutral-0">
@@ -554,7 +589,9 @@ export default function CustomerContent() {
           <TabBar tab={tab} onChange={setTab} />
           <p className="-mt-1 text-sm text-neutral-600">{TAB_META[tab].description}</p>
           <AiInsight title={`${tab} Insights`}>{TAB_META[tab].insight}</AiInsight>
-          {tab === "Bracketing" ? (
+          {tab === "Overview" ? (
+            <OverviewTab onGo={go} />
+          ) : tab === "Bracketing" ? (
             <BracketingTab />
           ) : tab === "Exchange" ? (
             <ExchangeTab />

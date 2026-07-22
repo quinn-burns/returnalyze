@@ -933,7 +933,7 @@ function Sankey() {
 
 function SankeyFlow() {
   return (
-    <Card>
+    <Card id="flow-sankey">
       <CardHeading
         title="Behavioral flow"
         subtitle="24,318 customers · rolling 12 months · Sankey view"

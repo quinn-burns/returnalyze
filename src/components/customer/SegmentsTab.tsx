@@ -286,7 +286,7 @@ function SegmentImpact({ segments }: { segments: Segment[] }) {
     .sort((a, b) => b.value - a.value);
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
-    <Card>
+    <Card id="segments-impact">
       <CardHeading
         title="Return revenue at risk by segment"
         subtitle="Selected segments ranked by the return revenue they represent."

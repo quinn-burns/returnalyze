@@ -200,15 +200,17 @@ function PromoteTable({
   subtitle,
   pctLabel,
   rows,
+  id,
 }: {
   title: string;
   subtitle: string;
   pctLabel: string;
   rows: PromoRow[];
+  id?: string;
 }) {
   const { slice, page, setPage, total, pageSize } = usePaged(rows, 5);
   return (
-    <Card>
+    <Card id={id}>
       <CardHeading title={title} subtitle={subtitle} />
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[560px] text-left text-sm">
@@ -311,6 +313,7 @@ export default function ExchangeTab() {
       </div>
       <ComeBack />
       <PromoteTable
+        id="exchange-promote"
         title="Promote size exchanges"
         subtitle="Low size-exchange rate — opportunity from increasing (→1.05×)"
         pctLabel="% Ret. Exch. Size"
