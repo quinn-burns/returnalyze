@@ -409,7 +409,7 @@ function Sankey() {
   const [hover, setHover] = useState<{ kind: "rib"; i: number } | { kind: "node"; id: string } | null>(
     null,
   );
-  const [tip, setTip] = useState<Tip | null>(null);
+
   // Drill-through selection, one entry per stage. Picking a node narrows the
   // population that flows onward, so every column to its right is recounted.
   const [sel, setSel] = useState<{
@@ -419,18 +419,13 @@ function Sankey() {
     dept?: string;
   }>({});
 
-  const W = 1240;
+  // Geometry from the original mockup. Rendered at width:100% the whole thing
+  // scales up together, so the bars stay a comfortable size to point at —
+  // which the wider viewBox quietly broke by shrinking them relative to the page.
+  const W = 700;
   const H = 470;
-  const colW = 20;
-  const cols = [60, 430, 800, 1160];
-  // Pointer bands per column, wide enough to catch the bar, its label and the
-  // empty side of the column, without running into the neighbouring column.
-  const hitBands = [
-    [0, 250],
-    [380, 615],
-    [645, 850],
-    [1005, 1240],
-  ];
+  const colW = 16;
+  const cols = [40, 225, 400, 585];
   const top = 50;
   const scale = (H - top - 14 - 5 * 6) / SANKEY_TOTAL;
 
@@ -628,6 +623,21 @@ function Sankey() {
   // How many customers survive the path, counted at the last stage picked.
   const reachedNow = crumbs.length ? nodeCount[crumbs[crumbs.length - 1]] : SANKEY_TOTAL;
 
+  // Derived from hover rather than stored, so it can never fall out of step
+  // with what the pointer is actually over.
+  let tip: Tip | null = null;
+  if (hover?.kind === "rib") {
+    const l = ribbons[hover.i].l;
+    tip = {
+      title: `${nodeMap[l.src].label} → ${nodeMap[l.dst].label}`,
+      cust: l.v,
+      avg: l.avgVal,
+    };
+  } else if (hover?.kind === "node") {
+    const n = nodeMap[hover.id];
+    tip = { title: n.label, cust: nodeCount[hover.id], avg: perNodeVal[hover.id] || 0 };
+  }
+
   const headers = [
     { x: cols[0], label: "Bracketing Type" },
     { x: cols[1], label: "First Order" },
@@ -688,10 +698,7 @@ function Sankey() {
         style={{ display: "block", width: "100%", height: "auto" }}
         role="img"
         aria-label="Behavioral flow Sankey diagram"
-        onMouseLeave={() => {
-          setHover(null);
-          setTip(null);
-        }}
+        onMouseLeave={() => setHover(null)}
       >
         {headers.map((h, i) => (
           <text
@@ -707,15 +714,16 @@ function Sankey() {
           </text>
         ))}
         {ribbons.map((r, i) => {
-          const op = active
-            ? onRoute(r.l)
-              ? 0.45
-              : 0.07
-            : hover?.kind === "rib"
+          const op =
+            hover?.kind === "rib"
               ? hover.i === i
-                ? 0.65
-                : 0.12
-              : 0.32;
+                ? 0.6
+                : 0.1
+              : active
+                ? onRoute(r.l)
+                  ? 0.45
+                  : 0.07
+                : 0.32;
           return (
             <path
               key={i}
@@ -724,14 +732,7 @@ function Sankey() {
               fillOpacity={op}
               style={{ cursor: "pointer", transition: "fill-opacity 120ms" }}
               onClick={() => pickPath(r.l.src, r.l.dst)}
-              onMouseEnter={() => {
-                setHover({ kind: "rib", i });
-                setTip({
-                  title: `${nodeMap[r.l.src].label} → ${nodeMap[r.l.dst].label}`,
-                  cust: r.l.v,
-                  avg: r.l.avgVal,
-                });
-              }}
+              onMouseEnter={() => setHover({ kind: "rib", i })}
             />
           );
         })}
@@ -741,7 +742,6 @@ function Sankey() {
           const tx = left ? n.x - 6 : n.x + colW + 6;
           const anchor = left ? "end" : "start";
           const mid = (n.y0 + n.y1) / 2;
-          const band = hitBands[cols.indexOf(n.x)] ?? [n.x - 8, n.x + colW + 8];
           return (
             <g key={n.id} opacity={dimmed(n.id) ? 0.45 : 1} style={{ transition: "opacity 160ms" }}>
               <rect
@@ -754,8 +754,9 @@ function Sankey() {
                 fillOpacity={dimmed(n.id) ? 0.22 : 1}
                 stroke={crumbs.includes(n.id) ? "#212121" : "none"}
                 strokeWidth={crumbs.includes(n.id) ? 1.5 : 0}
-                pointerEvents="none"
-                style={{ transition: "fill-opacity 160ms" }}
+                style={{ cursor: "pointer", transition: "fill-opacity 160ms" }}
+                onClick={() => pick(n.id)}
+                onMouseEnter={() => setHover({ kind: "node", id: n.id })}
               />
               {h > 22 ? (
                 <>
@@ -771,21 +772,6 @@ function Sankey() {
                   {n.label} · {sFmt(nodeCount[n.id])}
                 </text>
               )}
-              {/* Transparent target spanning the column's whole band. The bar
-                  alone is ~11 real pixels wide, far too thin to aim at. */}
-              <rect
-                x={band[0]}
-                y={Math.min(n.y0, mid - 11)}
-                width={band[1] - band[0]}
-                height={Math.max(h, 22)}
-                fill="transparent"
-                style={{ cursor: "pointer" }}
-                onClick={() => pick(n.id)}
-                onMouseEnter={() => {
-                  setHover({ kind: "node", id: n.id });
-                  setTip({ title: n.label, cust: nodeCount[n.id], avg: perNodeVal[n.id] });
-                }}
-              />
             </g>
           );
         })}
