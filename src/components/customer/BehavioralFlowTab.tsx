@@ -419,13 +419,14 @@ function Sankey() {
     dept?: string;
   }>({});
 
-  // Geometry from the original mockup. Rendered at width:100% the whole thing
-  // scales up together, so the bars stay a comfortable size to point at —
-  // which the wider viewBox quietly broke by shrinking them relative to the page.
-  const W = 700;
-  const H = 470;
-  const colW = 16;
-  const cols = [40, 225, 400, 585];
+  // The mockup's 700-wide box was drawn to sit at maxWidth 700; stretched to a
+  // full-width card it scales roughly 2.3x and turns enormous. Keep the mockup's
+  // proportions but double the box, so the whole thing renders near 1:1: short,
+  // full-bleed, and with bars still around 27px to point at.
+  const W = 1400;
+  const H = 420;
+  const colW = 24;
+  const cols = [80, 450, 800, 1170];
   const top = 50;
   const scale = (H - top - 14 - 5 * 6) / SANKEY_TOTAL;
 
@@ -739,7 +740,7 @@ function Sankey() {
         {Object.values(nodeMap).map((n) => {
           const h = Math.max(2, n.y1 - n.y0);
           const left = n.x > W / 2;
-          const tx = left ? n.x - 6 : n.x + colW + 6;
+          const tx = left ? n.x - 10 : n.x + colW + 10;
           const anchor = left ? "end" : "start";
           const mid = (n.y0 + n.y1) / 2;
           return (
