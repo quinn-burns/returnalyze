@@ -437,29 +437,42 @@ function Sankey() {
   const avgFirst = S_OUTCOMES.reduce((s, o, oi) => s + outTot[oi] * o.val, 0) / SANKEY_TOTAL;
   const avgDept = S_DEPTS.reduce((s, d) => s + d.share * d.val, 0);
 
-  // The selected route, counted stage by stage. Drawn as a solid band inside
-  // each full-size flow, so the part and the whole are visible together.
-  const selBracket = S_BRACKETS.map((b, i) => (bracketOn(b.id) ? bracketN[i] : 0));
-  const selOut = S_OUTCOMES.map((o) =>
-    outcomeOn(o.id) ? S_BRACKETS.reduce((s, b, bi) => s + selBracket[bi] * b.out[o.id], 0) : 0,
+  // Displayed counts, narrowed by the picks made in EARLIER columns only. A
+  // column's own pick is left out so its options stay comparable to each other,
+  // which is what lets the numbers stack up as you click across.
+  const outUp = S_OUTCOMES.map((o) =>
+    S_BRACKETS.reduce((s, b, bi) => (bracketOn(b.id) ? s + bracketN[bi] * b.out[o.id] : s), 0),
   );
-  const selNext = nextOn("next")
-    ? S_OUTCOMES.reduce((s, o, oi) => s + selOut[oi] * o.repeat, 0)
-    : 0;
-  const selNorep = nextOn("norep")
-    ? S_OUTCOMES.reduce((s, o, oi) => s + selOut[oi] * (1 - o.repeat), 0)
-    : 0;
+  const nextUp = S_OUTCOMES.reduce(
+    (s, o, oi) => (outcomeOn(o.id) ? s + outUp[oi] * o.repeat : s),
+    0,
+  );
+  const norepUp = S_OUTCOMES.reduce(
+    (s, o, oi) => (outcomeOn(o.id) ? s + outUp[oi] * (1 - o.repeat) : s),
+    0,
+  );
+  const deptUp = nextOn("next") ? nextUp : 0;
 
-  const selVal: Record<string, number> = { next: selNext, norep: selNorep };
+  const nodeCount: Record<string, number> = { next: nextUp, norep: norepUp };
   S_BRACKETS.forEach((b, i) => {
-    selVal[b.id] = selBracket[i];
+    nodeCount[b.id] = bracketN[i];
   });
   S_OUTCOMES.forEach((o, i) => {
-    selVal[o.id] = selOut[i];
+    nodeCount[o.id] = outUp[i];
   });
   S_DEPTS.forEach((d) => {
-    selVal[d.id] = selNext * d.share;
+    nodeCount[d.id] = deptUp * d.share;
   });
+
+  // A pick greys out only its own column's other options; everything else keeps
+  // its normal weight so the chart still looks like itself.
+  const dimmed = (id: string) => {
+    const st = stageOf(id);
+    if (st === "bracket") return Boolean(sel.bracket) && sel.bracket !== id;
+    if (st === "outcome") return Boolean(sel.outcome) && sel.outcome !== id;
+    if (st === "next") return Boolean(sel.next) && sel.next !== id;
+    return false;
+  };
 
   const stack = (items: { id: string; label: string; c: string; v: number }[], x: number): SN[] => {
     let y = top;
@@ -509,45 +522,31 @@ function Sankey() {
     perNodeVal[d.id] = avgFirst + d.val;
   });
 
-  type L = { src: string; dst: string; v: number; sv: number; color: string; avgVal: number };
+  type L = { src: string; dst: string; v: number; color: string; avgVal: number };
   const links: L[] = [];
   S_BRACKETS.forEach((b, bi) =>
     S_OUTCOMES.forEach((o) => {
       const v = bracketN[bi] * b.out[o.id];
-      if (v < 1) return;
-      const sv = bracketOn(b.id) && outcomeOn(o.id) ? v : 0;
-      links.push({ src: b.id, dst: o.id, v, sv, color: o.color, avgVal: o.val + o.repeat * avgDept });
+      if (v >= 1)
+        links.push({ src: b.id, dst: o.id, v, color: o.color, avgVal: o.val + o.repeat * avgDept });
     }),
   );
   S_OUTCOMES.forEach((o, oi) => {
     const tt = outTot[oi];
-    links.push({
-      src: o.id,
-      dst: "next",
-      v: tt * o.repeat,
-      sv: nextOn("next") ? selOut[oi] * o.repeat : 0,
-      color: S_NEXT.next,
-      avgVal: o.val + avgDept,
-    });
-    links.push({
-      src: o.id,
-      dst: "norep",
-      v: tt * (1 - o.repeat),
-      sv: nextOn("norep") ? selOut[oi] * (1 - o.repeat) : 0,
-      color: S_NEXT.norep,
-      avgVal: o.val,
-    });
+    links.push({ src: o.id, dst: "next", v: tt * o.repeat, color: S_NEXT.next, avgVal: o.val + avgDept });
+    links.push({ src: o.id, dst: "norep", v: tt * (1 - o.repeat), color: S_NEXT.norep, avgVal: o.val });
   });
   S_DEPTS.forEach((d) =>
-    links.push({
-      src: "next",
-      dst: d.id,
-      v: repeatN * d.share,
-      sv: selNext * d.share,
-      color: d.color,
-      avgVal: avgFirst + d.val,
-    }),
+    links.push({ src: "next", dst: d.id, v: repeatN * d.share, color: d.color, avgVal: avgFirst + d.val }),
   );
+
+  // A flow is on the saved route when both ends survive the picks so far.
+  const onRoute = (l: L) => {
+    const st = stageOf(l.src);
+    if (st === "bracket") return bracketOn(l.src) && outcomeOn(l.dst);
+    if (st === "outcome") return outcomeOn(l.src) && nextOn(l.dst);
+    return nextOn("next");
+  };
 
   const outOff: Record<string, number> = {};
   const inOff: Record<string, number> = {};
@@ -565,13 +564,8 @@ function Sankey() {
     const x1 = s.x + colW;
     const x2 = dn.x;
     const mx = (x1 + x2) / 2;
-    const band = (a0: number, a1: number, b0: number, b1: number) =>
-      `M${x1},${a0} C${mx},${a0} ${mx},${b0} ${x2},${b0} L${x2},${b1} C${mx},${b1} ${mx},${a1} ${x1},${a1} Z`;
-    // The selected share of a flow, drawn along its top edge.
-    const f = l.v > 0 ? l.sv / l.v : 0;
     return {
-      path: band(sy0, sy1, dy0, dy1),
-      hi: f > 0.001 ? band(sy0, sy0 + (sy1 - sy0) * f, dy0, dy0 + (dy1 - dy0) * f) : null,
+      path: `M${x1},${sy0} C${mx},${sy0} ${mx},${dy0} ${x2},${dy0} L${x2},${dy1} C${mx},${dy1} ${mx},${sy1} ${x1},${sy1} Z`,
       l,
     };
   });
@@ -613,16 +607,8 @@ function Sankey() {
     [...S_BRACKETS, ...S_OUTCOMES, ...S_DEPTS].find((n) => n.id === id)?.label ??
     (id === "next" ? "Next Purchase" : "No Next Purchase");
   const crumbs = [sel.bracket, sel.outcome, sel.next].filter(Boolean) as string[];
-  // How many customers survive the current path, measured at the last stage picked.
-  const reachedNow = sel.next
-    ? sel.next === "norep"
-      ? selNorep
-      : selNext
-    : sel.outcome
-      ? selOut.reduce((s, v) => s + v, 0)
-      : sel.bracket
-        ? selBracket.reduce((s, v) => s + v, 0)
-        : SANKEY_TOTAL;
+  // How many customers survive the path, counted at the last stage picked.
+  const reachedNow = crumbs.length ? nodeCount[crumbs[crumbs.length - 1]] : SANKEY_TOTAL;
 
   const headers = [
     { x: cols[0], label: "Bracketing Type" },
@@ -703,10 +689,10 @@ function Sankey() {
           </text>
         ))}
         {ribbons.map((r, i) => {
-          // With a route picked the untouched flows stay drawn, just quiet, so
-          // the diagram keeps its shape and the route reads on top of it.
           const op = active
-            ? 0.12
+            ? onRoute(r.l)
+              ? 0.45
+              : 0.07
             : hover?.kind === "rib"
               ? hover.i === i
                 ? 0.65
@@ -724,19 +710,13 @@ function Sankey() {
                 setHover({ kind: "rib", i });
                 setTip({
                   title: `${nodeMap[r.l.src].label} → ${nodeMap[r.l.dst].label}`,
-                  cust: active ? r.l.sv : r.l.v,
+                  cust: r.l.v,
                   avg: r.l.avgVal,
                 });
               }}
             />
           );
         })}
-        {active &&
-          ribbons.map((r, i) =>
-            r.hi ? (
-              <path key={`hi${i}`} d={r.hi} fill={r.l.color} fillOpacity={0.85} pointerEvents="none" />
-            ) : null,
-          )}
         {Object.values(nodeMap).map((n) => {
           const h = Math.max(2, n.y1 - n.y0);
           const left = n.x > W / 2;
@@ -744,7 +724,7 @@ function Sankey() {
           const anchor = left ? "end" : "start";
           const mid = (n.y0 + n.y1) / 2;
           return (
-            <g key={n.id}>
+            <g key={n.id} opacity={dimmed(n.id) ? 0.45 : 1} style={{ transition: "opacity 160ms" }}>
               <rect
                 x={n.x}
                 y={n.y0}
@@ -752,36 +732,24 @@ function Sankey() {
                 height={h}
                 rx={3}
                 fill={n.c}
-                fillOpacity={active ? 0.2 : 1}
+                fillOpacity={dimmed(n.id) ? 0.22 : 1}
                 stroke={crumbs.includes(n.id) ? "#212121" : "none"}
                 strokeWidth={crumbs.includes(n.id) ? 1.5 : 0}
                 pointerEvents="none"
                 style={{ transition: "fill-opacity 160ms" }}
               />
-              {active && selVal[n.id] > 0 ? (
-                <rect
-                  x={n.x}
-                  y={n.y0}
-                  width={colW}
-                  height={Math.max(h * (selVal[n.id] / n.v), 2)}
-                  rx={3}
-                  fill={n.c}
-                  pointerEvents="none"
-                  style={{ transition: "height 220ms" }}
-                />
-              ) : null}
               {h > 22 ? (
                 <>
                   <text x={tx} y={mid - 2} textAnchor={anchor} fontSize="11" fontWeight="600" fill="#212121" pointerEvents="none">
                     {n.label}
                   </text>
                   <text x={tx} y={mid + 11} textAnchor={anchor} fontSize="10.5" fill="#676767" pointerEvents="none">
-                    {active ? `${sFmt(selVal[n.id])} of ${sFmt(n.v)}` : sFmt(n.v)}
+                    {sFmt(nodeCount[n.id])}
                   </text>
                 </>
               ) : (
                 <text x={tx} y={mid + 3.5} textAnchor={anchor} fontSize="10.5" fontWeight="600" fill="#212121" pointerEvents="none">
-                  {n.label} · {active ? `${sFmt(selVal[n.id])} of ${sFmt(n.v)}` : sFmt(n.v)}
+                  {n.label} · {sFmt(nodeCount[n.id])}
                 </text>
               )}
               {/* Transparent target covering the bar and its label. The bar alone
@@ -796,7 +764,7 @@ function Sankey() {
                 onClick={() => pick(n.id)}
                 onMouseEnter={() => {
                   setHover({ kind: "node", id: n.id });
-                  setTip({ title: n.label, cust: active ? selVal[n.id] : n.v, avg: perNodeVal[n.id] });
+                  setTip({ title: n.label, cust: nodeCount[n.id], avg: perNodeVal[n.id] });
                 }}
               />
             </g>
