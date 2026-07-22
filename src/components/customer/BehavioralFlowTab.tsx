@@ -73,7 +73,7 @@ const rank = (list: string[], v: string) => {
   const i = list.indexOf(v);
   return i === -1 ? list.length : i;
 };
-const PATHS_ALL = padPaths(PATHS, 48).sort(
+const PATHS_ALL = padPaths(PATHS, 72).sort(
   (a, b) =>
     rank(B_ORDER, a.bracketing) - rank(B_ORDER, b.bracketing) ||
     rank(O_ORDER, a.firstOrder) - rank(O_ORDER, b.firstOrder) ||
@@ -121,7 +121,7 @@ function ValuePill({ text, positive }: { text: string; positive: boolean }) {
 }
 
 function AllPaths() {
-  const { slice, page, setPage, total, pageSize } = usePaged(PATHS_ALL, 12);
+  const { slice, page, setPage, total, pageSize } = usePaged(PATHS_ALL, 18);
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
