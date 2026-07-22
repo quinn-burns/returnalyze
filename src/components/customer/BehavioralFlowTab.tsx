@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardHeading, Pagination, usePaged } from "./parts";
 import { seeded } from "./filler";
 
@@ -123,15 +123,23 @@ function ValuePill({ text, positive }: { text: string; positive: boolean }) {
 function AllPaths() {
   const { slice, page, setPage, total, pageSize } = usePaged(PATHS_ALL, 18);
   const topRef = useRef<HTMLDivElement>(null);
+  const wantScroll = useRef(false);
   // Eighteen rows is taller than the viewport, so paging from the arrows at the
-  // bottom would otherwise drop you into the middle of the next page.
+  // bottom would otherwise drop you into the middle of the next page. Scroll
+  // after the commit, not inside the click: a smooth scroll is asynchronous, so
+  // starting it against the outgoing rows leaves it racing the re-render.
   const goToPage = (p: number) => {
+    wantScroll.current = true;
     setPage(p);
+  };
+  useEffect(() => {
+    if (!wantScroll.current) return;
+    wantScroll.current = false;
     topRef.current?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start",
     });
-  };
+  }, [page]);
   return (
     <Card>
       <div ref={topRef} className="flex scroll-mt-6 items-center justify-between gap-3">
