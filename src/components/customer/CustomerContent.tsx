@@ -218,13 +218,24 @@ function Pill({ change, trend }: { change: string; trend: Trend }) {
   );
 }
 
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+/* Local twin of the Card in ./parts — kept in step with it, including the `id`
+   that lets the Overview tab link straight to a card. */
+function Card({
+  children,
+  className = "",
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
   const { ref, shown } = useReveal<HTMLElement>();
   return (
     <section
       ref={ref}
+      id={id}
       data-reveal={shown ? "in" : "out"}
-      className={`rounded-lg border border-neutral-200 bg-neutral-0 p-4 ${className}`}
+      className={`scroll-mt-6 rounded-lg border border-neutral-200 bg-neutral-0 p-4 ${className}`}
     >
       {children}
     </section>
