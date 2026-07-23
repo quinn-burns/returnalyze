@@ -603,13 +603,16 @@ export default function CustomerContent() {
   };
 
   useEffect(() => {
+    // The new tab is already committed to the DOM by the time this runs, so the
+    // scroll happens directly rather than inside requestAnimationFrame — rAF is
+    // paused on a hidden page, which would silently drop it.
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Coming back: restore the exact scroll position they left from.
     if (pendingScroll.current != null) {
       const y = pendingScroll.current;
       pendingScroll.current = null;
-      requestAnimationFrame(() => window.scrollTo({ top: y, behavior: "auto" }));
+      window.scrollTo({ top: y, behavior: "auto" });
       return;
     }
 
@@ -617,16 +620,14 @@ export default function CustomerContent() {
     const anchor = pendingAnchor.current;
     if (!anchor) return;
     pendingAnchor.current = null;
-    requestAnimationFrame(() => {
-      const el = document.getElementById(anchor);
-      if (!el) return;
-      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-      el.classList.remove("anchor-flash");
-      // Reflow so the animation restarts even if the same card is revisited.
-      void el.offsetWidth;
-      el.classList.add("anchor-flash");
-      window.setTimeout(() => el.classList.remove("anchor-flash"), 2600);
-    });
+    const el = document.getElementById(anchor);
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    el.classList.remove("anchor-flash");
+    // Reflow so the animation restarts even if the same card is revisited.
+    void el.offsetWidth;
+    el.classList.add("anchor-flash");
+    window.setTimeout(() => el.classList.remove("anchor-flash"), 2600);
   }, [tab]);
 
   return (
