@@ -197,13 +197,30 @@ function SeeData({ label = "See the data", onClick }: { label?: string; onClick:
 
 /* --------------------------- sections ---------------------------- */
 
-/** Deliberately unlike the flat white KPI grid the other tabs use: this is the
-    one place that totals across areas, so it should not look like a tab. */
+/** The AI read for this page: the summary sentence and the money it points to
+    are one thought, so they share one box rather than sitting as two. */
 function OpportunityBar({ onGo }: { onGo: (tab: string, anchor: string) => void }) {
   const total = RECOVERABLE.reduce((s, r) => s + r.value, 0);
   return (
-    <div className="flex flex-col gap-3">
-      <section className="overflow-hidden rounded-lg bg-primary-800 text-neutral-0">
+    <section className="rounded-lg border border-primary-100 bg-primary-50 p-4">
+      <div className="flex items-center gap-1.5">
+        <span className="flex items-center justify-center rounded-full bg-gradient-to-b from-[#27cba7] to-[#0b61dd] p-[3.5px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/overview/ai-logo.svg" alt="" className="size-[17px]" />
+        </span>
+        <h2 className="text-xl font-semibold text-primary-700">Overview Insights</h2>
+      </div>
+      <p className="mt-1.5 text-sm leading-relaxed text-neutral-700">
+        There is <span className="font-semibold text-neutral-800">$232K</span> identified across
+        bracketing and exchange, and the largest single piece of it —{" "}
+        <span className="font-semibold text-neutral-800">$111K in colour bracketing</span> — is also
+        the lever that most improves retention, since 90% of those orders are kept in full and those
+        customers come back at 74%. The mirror of it is size bracketing: 40% of those orders come
+        back in full, and customers who return everything repurchase at just 41%.
+      </p>
+
+      <div className="mt-4 flex flex-col gap-3">
+        <section className="overflow-hidden rounded-lg bg-primary-800 text-neutral-0">
         <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-stretch lg:gap-8">
           {/* Gain. The actionable number, so it gets the size. */}
           <div className="flex-1">
@@ -287,7 +304,8 @@ function OpportunityBar({ onGo }: { onGo: (tab: string, anchor: string) => void 
           </span>
         ))}
       </div>
-    </div>
+      </div>
+    </section>
   );
 }
 

@@ -26,20 +26,12 @@ import OverviewTab from "./OverviewTab";
 const TABS = ["Overview", "Bracketing", "Exchange", "Segments", "Behavioral Flow"] as const;
 type Tab = (typeof TABS)[number];
 
-const TAB_META: Record<Tab, { description: string; insight: React.ReactNode }> = {
+// Overview folds its AI summary into OverviewTab's own panel, so it has no
+// standalone insight here — hence insight is optional.
+const TAB_META: Record<Tab, { description: string; insight?: React.ReactNode }> = {
   Overview: {
     description:
       "Everything the other four tabs conclude, totalled and ranked in one place — including the findings that only appear when two areas are read together.",
-    insight: (
-      <>
-        There is <span className="font-semibold text-neutral-800">$232K</span>{" "}identified across
-        bracketing and exchange, and the largest single piece of it —{" "}
-        <span className="font-semibold text-neutral-800">$111K in colour bracketing</span>{" "}— is also
-        the lever that most improves retention, since 90% of those orders are kept in full and
-        those customers come back at 74%. The mirror of it is size bracketing: 40% of those orders
-        come back in full, and customers who return everything repurchase at just 41%.
-      </>
-    ),
   },
   Bracketing: {
     description:
@@ -661,7 +653,9 @@ export default function CustomerContent() {
           <FilterBar tab={tab} />
           <TabBar tab={tab} onChange={pickTab} />
           <p className="-mt-1 text-sm text-neutral-600">{TAB_META[tab].description}</p>
-          <AiInsight title={`${tab} Insights`}>{TAB_META[tab].insight}</AiInsight>
+          {TAB_META[tab].insight ? (
+            <AiInsight title={`${tab} Insights`}>{TAB_META[tab].insight}</AiInsight>
+          ) : null}
           {tab === "Overview" ? (
             <OverviewTab onGo={go} />
           ) : tab === "Bracketing" ? (

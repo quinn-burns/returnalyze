@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardHeading, Pagination, TakeAction, usePaged } from "./parts";
 import { seeded } from "./filler";
 
@@ -183,9 +183,6 @@ const PRESETS: { id: Preset; label: string; hint: string }[] = [
 type Metric = "customers" | "net";
 type SortBy = "biggest" | "improved" | "declined";
 
-type View = { name: string; preset: Preset; metric: Metric; sort: SortBy };
-const STORAGE_KEY = "returns-journey-views";
-
 /* ---------------------------- pieces ----------------------------- */
 
 function PathChips({ steps }: { steps: Stage[] }) {
@@ -267,33 +264,6 @@ export default function JourneysModule({
   const [metric, setMetric] = useState<Metric>("customers");
   const [sort, setSort] = useState<SortBy>("biggest");
   const [showFlow, setShowFlow] = useState(false);
-  const [views, setViews] = useState<View[]>([]);
-  const [naming, setNaming] = useState(false);
-  const [draftName, setDraftName] = useState("");
-
-  // Saved views live in the browser, so they are read after mount rather than
-  // during render — reading storage while rendering breaks hydration.
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setViews(JSON.parse(raw) as View[]);
-    } catch {
-      /* storage unavailable — saved views just stay empty */
-    }
-  }, []);
-  const persist = (next: View[]) => {
-    setViews(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const moved = useMemo(
-    () => journeys.filter((j) => Math.abs(j.delta) >= ALERT_AT).length,
-    [journeys],
-  );
 
   const rows = useMemo(() => {
     let list = journeys;
@@ -313,46 +283,14 @@ export default function JourneysModule({
   }, [journeys, preset, metric, sort]);
 
   const { slice, page, setPage, total, pageSize } = usePaged(rows, 6);
-  // Say the most important thing outright rather than leaving it in row one.
-  const lead = rows[0];
-  const leadRead = lead ? readJourney(lead) : null;
-  const max = Math.max(...rows.map((j) => Math.abs(metric === "net" ? j.net : j.customers)), 1);
   const activeHint = PRESETS.find((p) => p.id === preset)?.hint ?? "";
-
-  const applyView = (v: View) => {
-    setPreset(v.preset);
-    setMetric(v.metric);
-    setSort(v.sort);
-    setPage(0);
-  };
 
   return (
     <Card id="flow-journeys">
       <CardHeading
         title="Customer journeys"
-        subtitle="Every complete path from how they bracket to what they buy next, ranked. Built from the same numbers as the flow diagram."
+        subtitle="Every complete path from how they bracket to what they buy next, ranked."
       />
-
-      {/* Tell them what moved rather than waiting to be asked. */}
-      {moved > 0 ? (
-        <button
-          type="button"
-          onClick={() => {
-            setPreset("movers");
-            setPage(0);
-          }}
-          className="mt-3 flex w-full items-center gap-2 rounded-lg border border-warning-100 bg-warning-50 px-3 py-2 text-left text-xs text-neutral-700 transition-colors hover:border-warning-400"
-        >
-          <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-warning-500 text-[10px] font-bold text-neutral-0">
-            !
-          </span>
-          <span>
-            <span className="font-semibold text-neutral-800">{moved} journeys</span> moved more than{" "}
-            {ALERT_AT}% since last period.
-          </span>
-          <span className="ml-auto whitespace-nowrap font-medium text-primary-600">Show me →</span>
-        </button>
-      ) : null}
 
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex flex-wrap gap-1.5">
@@ -397,126 +335,49 @@ export default function JourneysModule({
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <p className="text-xs text-neutral-600">{activeHint}</p>
-        <div className="ml-auto flex flex-wrap items-center gap-1.5">
-          {views.map((v) => (
-            <span
-              key={v.name}
-              className="flex items-center gap-1 rounded-full border border-primary-100 bg-primary-50 py-0.5 pl-2.5 pr-1 text-xs text-primary-600"
-            >
-              <button type="button" onClick={() => applyView(v)} className="font-medium">
-                {v.name}
-              </button>
-              <button
-                type="button"
-                aria-label={`Delete saved view ${v.name}`}
-                onClick={() => persist(views.filter((x) => x.name !== v.name))}
-                className="px-1 text-neutral-400 hover:text-danger-600"
-              >
-                ×
-              </button>
-            </span>
-          ))}
-          {naming ? (
-            <span className="flex items-center gap-1">
-              <input
-                autoFocus
-                value={draftName}
-                onChange={(e) => setDraftName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") setNaming(false);
-                  if (e.key === "Enter" && draftName.trim()) {
-                    persist([
-                      ...views.filter((v) => v.name !== draftName.trim()),
-                      { name: draftName.trim(), preset, metric, sort },
-                    ]);
-                    setDraftName("");
-                    setNaming(false);
-                  }
-                }}
-                placeholder="Name this view"
-                className="h-7 w-36 rounded-lg border border-neutral-200 px-2 text-xs text-neutral-800"
-              />
-              <button
-                type="button"
-                onClick={() => setNaming(false)}
-                className="text-xs text-neutral-600 hover:text-neutral-800"
-              >
-                Cancel
-              </button>
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setNaming(true)}
-              className="rounded-lg border border-neutral-200 px-2 py-1 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
-            >
-              Save this view
-            </button>
-          )}
-        </div>
+      <p className="mt-2 text-xs text-neutral-600">{activeHint}</p>
+
+      {/* Column labels, so the two numbers on each row are unambiguous. */}
+      <div className="mt-3 hidden items-center gap-x-4 border-b border-neutral-200 pb-1.5 text-[11px] font-medium text-neutral-500 sm:flex">
+        <span className="w-5 shrink-0" />
+        <span className="min-w-[240px] flex-1">Journey</span>
+        <span className="w-16 shrink-0 text-right">Customers</span>
+        <span className="w-20 shrink-0 text-right">Net value</span>
+        <span className="w-16 shrink-0 text-right">Change</span>
       </div>
 
-      {lead && leadRead ? (
-        <div className="mt-3 rounded-lg border border-primary-100 bg-primary-50 p-3.5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary-600">
-            Start here
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-neutral-800">
-            <span className="font-semibold">{fmtN(lead.customers)} customers</span>{" "}
-            {lead.steps.map((st) => st.label.toLowerCase()).join(" → ")}, worth{" "}
-            <span className="font-semibold">{fmtMoney(lead.net)}</span>. {leadRead.meaning}
-          </p>
-          <p className="mt-1.5 text-sm font-medium text-neutral-800">
-            → {leadRead.action}
-          </p>
-        </div>
-      ) : null}
-
-      <ol className="mt-3 flex flex-col">
+      <ol className="flex flex-col">
         {slice.map((j, i) => {
-          const size = metric === "net" ? j.net : j.customers;
-          const pct = (Math.abs(size) / max) * 100;
-          const negative = metric === "net" && j.net < 0;
           const read = readJourney(j);
+          const material = Math.abs(j.delta) >= ALERT_AT;
           return (
             <li key={j.key} className="border-b border-primary-50 py-3 last:border-b-0">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="w-5 shrink-0 text-xs font-semibold text-neutral-400">
-                {page * pageSize + i + 1}
-              </span>
-              <div className="min-w-[280px] flex-1">
-                <PathChips steps={j.steps} />
-              </div>
-              <span className="flex w-32 shrink-0 items-center gap-2">
-                <span className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-100">
-                  <span
-                    data-anim-bar
-                    className={`block h-full rounded-full ${negative ? "bg-danger-600" : "bg-primary-600"}`}
-                    style={{ width: `${pct}%` }}
-                  />
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                <span className="w-5 shrink-0 text-xs font-semibold text-neutral-400">
+                  {page * pageSize + i + 1}
                 </span>
-              </span>
-              <span className="w-20 shrink-0 text-right text-xs text-neutral-700">
-                {fmtN(j.customers)}
-              </span>
-              <span
-                className={`w-20 shrink-0 text-right text-xs font-semibold ${
-                  j.net < 0 ? "text-danger-600" : "text-neutral-800"
-                }`}
-              >
-                {fmtMoney(j.net)}
-              </span>
-              <span className="flex w-24 shrink-0 items-center justify-end gap-1.5">
-                {Math.abs(j.delta) >= ALERT_AT ? (
-                  <span className="size-1.5 rounded-full bg-warning-500" title="Moved materially" />
-                ) : null}
-                <Delta value={j.delta} />
-              </span>
+                <div className="min-w-[240px] flex-1">
+                  <PathChips steps={j.steps} />
+                </div>
+                <span className="w-16 shrink-0 text-right text-xs text-neutral-600">
+                  {fmtN(j.customers)}
+                </span>
+                <span
+                  className={`w-20 shrink-0 text-right text-sm font-semibold ${
+                    j.net < 0 ? "text-danger-600" : "text-neutral-800"
+                  }`}
+                >
+                  {fmtMoney(j.net)}
+                </span>
+                <span className="flex w-16 shrink-0 items-center justify-end gap-1">
+                  {material ? (
+                    <span className="size-1.5 rounded-full bg-warning-500" title="Moved materially" />
+                  ) : null}
+                  <Delta value={j.delta} />
+                </span>
               </div>
-              {/* What it means and what to do, said outright. */}
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 pl-0 sm:pl-9">
+              {/* The one-line read: what it is, and what to do. */}
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:pl-9">
                 <span
                   className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
                     read.tone === "bad"
@@ -528,11 +389,10 @@ export default function JourneysModule({
                 >
                   {read.verdict}
                 </span>
-                <p className="min-w-[220px] flex-1 text-xs leading-relaxed text-neutral-600">
-                  {read.meaning}
-                </p>
-                <span className="text-xs font-medium text-neutral-800">→ {read.action}</span>
-                <TakeAction context="Behavioral Flow" department={j.steps[0].label} />
+                <span className="text-xs font-medium text-neutral-700">→ {read.action}</span>
+                <span className="ml-auto">
+                  <TakeAction context="Behavioral Flow" department={j.steps[0].label} />
+                </span>
               </div>
             </li>
           );
@@ -552,10 +412,7 @@ export default function JourneysModule({
           onClick={() => setShowFlow((s) => !s)}
           className="flex items-center gap-1.5 text-xs font-medium text-primary-600 hover:text-primary-700"
         >
-          <span
-            aria-hidden="true"
-            className={`transition-transform ${showFlow ? "rotate-90" : ""}`}
-          >
+          <span aria-hidden="true" className={`transition-transform ${showFlow ? "rotate-90" : ""}`}>
             ›
           </span>
           {showFlow ? "Hide the whole flow" : "See the whole flow"}
