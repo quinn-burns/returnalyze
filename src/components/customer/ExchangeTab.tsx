@@ -5,6 +5,7 @@ import {
   AiInsight,
   Card,
   CardHeading,
+  Donut,
   InsightLink,
   KpiStrip,
   Pagination,
@@ -115,54 +116,70 @@ const IMPROVE_COLOR_ALL = padGuide(IMPROVE_COLOR, 24);
 /* --------------------------- charts ------------------------------ */
 
 function ExchangeKind() {
+  // Size and Color are independent rates (they do not sum to 100), so a share
+  // chart like a donut would misread — keep bars, sized to fill the card.
   return (
     <Card>
-      <CardHeading
-        title="Of exchanges, what kind?"
-        subtitle="Size = swap to a different size. Color = swap to a different color."
-      />
-      <div className="mt-4 flex flex-col gap-3">
-        {KIND.map((t) => (
-          <div key={t.label} className="flex items-center gap-3">
-            <span className="w-12 shrink-0 text-sm font-medium text-neutral-800">{t.label}</span>
-            <div className="h-5 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-neutral-100">
-              <div
-                data-anim-bar
-                className="h-5 rounded-[4px]"
-                style={{ width: `${t.pct}%`, backgroundColor: t.color }}
-              />
+      <div className="flex h-full flex-col">
+        <CardHeading
+          title="Of exchanges, what kind?"
+          subtitle="Size = swap to a different size. Color = swap to a different color."
+        />
+        <div className="flex flex-1 flex-col justify-center gap-6 py-5">
+          {KIND.map((t) => (
+            <div key={t.label} className="flex items-center gap-3">
+              <span className="w-14 shrink-0 text-sm font-medium text-neutral-800">{t.label}</span>
+              <div className="h-8 min-w-0 flex-1 overflow-hidden rounded-md bg-neutral-100">
+                <div
+                  data-anim-bar
+                  className="h-8 rounded-md"
+                  style={{ width: `${t.pct}%`, backgroundColor: t.color }}
+                />
+              </div>
+              <span className="w-12 shrink-0 text-right text-lg font-bold text-neutral-800">
+                {t.pct}%
+              </span>
             </div>
-            <span className="w-10 shrink-0 text-right text-sm font-semibold text-neutral-800">
-              {t.pct}%
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
+        <p className="text-[11px] leading-4 text-neutral-600">
+          Share of returns saved as a same-style exchange rather than a refund.
+        </p>
       </div>
-      <p className="mt-3 text-[11px] leading-4 text-neutral-600">
-        Share of returns saved as a same-style exchange rather than a refund.
-      </p>
     </Card>
   );
 }
 
 function ExchangeOutcome() {
+  // Kept vs Returned are two parts of one whole, so a donut fits and fills the card.
   return (
     <Card>
-      <CardHeading
-        title="When they exchange, what happens?"
-        subtitle="Did the exchanged item stick, or come back?"
-      />
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="flex items-center gap-1.5 text-[11px] text-neutral-600">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#059467" }} /> Kept — 67%
-        </span>
-        <span className="flex items-center gap-1.5 text-[11px] text-neutral-600">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: "#dc2828" }} /> Returned — 33%
-        </span>
-      </div>
-      <div data-anim-bar className="mt-4 flex h-6 w-full overflow-hidden rounded-[4px]">
-        <span style={{ width: "67%", backgroundColor: "#059467" }} />
-        <span style={{ width: "33%", backgroundColor: "#dc2828" }} />
+      <div className="flex h-full flex-col">
+        <CardHeading
+          title="When they exchange, what happens?"
+          subtitle="Did the exchanged item stick, or come back?"
+        />
+        <div className="flex flex-1 flex-wrap items-center justify-center gap-6 py-4">
+          <Donut
+            segments={[
+              { label: "Kept", pct: 67, color: "#059467" },
+              { label: "Returned", pct: 33, color: "#dc2828" },
+            ]}
+            centerTop="67%"
+            centerBottom="kept"
+            size={150}
+          />
+          <div className="flex flex-col gap-3">
+            <span className="flex items-center gap-2 text-sm text-neutral-700">
+              <span className="size-3 rounded-full" style={{ backgroundColor: "#059467" }} />
+              <span className="font-semibold text-neutral-800">Kept</span> — 67%
+            </span>
+            <span className="flex items-center gap-2 text-sm text-neutral-700">
+              <span className="size-3 rounded-full" style={{ backgroundColor: "#dc2828" }} />
+              <span className="font-semibold text-neutral-800">Returned</span> — 33%
+            </span>
+          </div>
+        </div>
       </div>
     </Card>
   );
@@ -180,19 +197,19 @@ function ComeBack() {
           top styles, by re-return rate × volume
         </p>
       </div>
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="mt-3 flex flex-col gap-2">
         {COME_BACK.map((s) => (
           <div key={s.style} className="flex items-center gap-3">
             {/* Style name over its exchange count, so the row stays narrow enough
                 to sit in the three-across layout without crushing the bar. */}
-            <div className="w-28 shrink-0">
-              <div className="truncate text-sm font-medium text-neutral-800">{s.style}</div>
-              <div className="truncate text-[10px] leading-tight text-neutral-500">{s.detail}</div>
+            <div className="w-28 shrink-0 leading-tight">
+              <div className="truncate text-[13px] font-medium text-neutral-800">{s.style}</div>
+              <div className="truncate text-[10px] text-neutral-500">{s.detail}</div>
             </div>
-            <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-neutral-100">
+            <div className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-neutral-100">
               <div
                 data-anim-bar
-                className="h-4 rounded-[4px] bg-primary-600"
+                className="h-3.5 rounded-[4px] bg-primary-600"
                 style={{ width: `${(s.pct / max) * 100}%` }}
               />
             </div>
@@ -226,26 +243,26 @@ function PromoteTable({
     <Card id={id}>
       <CardHeading title={title} subtitle={subtitle} />
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[560px] text-left text-sm">
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-neutral-600">
-              <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Return Revenue</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Rev. Opportunity</th>
-              <th className="py-2 pl-3 font-normal" />
+              <th className="py-2 pr-2 align-bottom font-normal leading-tight">Department</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Return Revenue</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">{pctLabel}</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Rev. Opportunity</th>
+              <th className="py-2 pl-2 font-normal" />
             </tr>
           </thead>
           <tbody>
             {slice.map((r) => (
               <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
-                <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.pct}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-neutral-800">
+                <td className="whitespace-nowrap py-3 pr-2 font-medium text-neutral-800">{r.dept}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.revenue}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.pct}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right font-semibold text-neutral-800">
                   {r.opportunity}
                 </td>
-                <td className="py-3 pl-3 text-right">
+                <td className="py-3 pl-2 text-right">
                   <TakeAction context="Exchange" department={r.dept} />
                 </td>
               </tr>
@@ -278,30 +295,30 @@ function GuidanceTable({
     <Card>
       <CardHeading title={title} subtitle={subtitle} action={<InsightLink label={insight} />} />
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-neutral-600">
-              <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Return Revenue</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{returnedLabel}</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Rev. Opportunity</th>
-              <th className="py-2 pl-3 font-normal" />
+              <th className="py-2 pr-2 align-bottom font-normal leading-tight">Department</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Return Revenue</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">{pctLabel}</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">{returnedLabel}</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Rev. Opportunity</th>
+              <th className="py-2 pl-2 font-normal" />
             </tr>
           </thead>
           <tbody>
             {slice.map((r) => (
               <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
-                <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.exchPct}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-danger-600">
+                <td className="whitespace-nowrap py-3 pr-2 font-medium text-neutral-800">{r.dept}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.revenue}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.exchPct}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right font-semibold text-danger-600">
                   {r.returnedPct}
                 </td>
-                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-neutral-800">
+                <td className="whitespace-nowrap px-2 py-3 text-right font-semibold text-neutral-800">
                   {r.opportunity}
                 </td>
-                <td className="py-3 pl-3 text-right">
+                <td className="py-3 pl-2 text-right">
                   <TakeAction context="Exchange" department={r.dept} />
                 </td>
               </tr>

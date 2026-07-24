@@ -5,7 +5,7 @@ import { Modal } from "../shared/overlays";
 
 const ACTION_TYPES = [
   "—",
-  "Promote bracketing",
+  "Allow bracketing",
   "Discourage bracketing",
   "Encourage exchange",
   "Improve size guidance",

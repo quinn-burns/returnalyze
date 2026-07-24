@@ -91,8 +91,8 @@ type Lever = {
   anchor: string;
 };
 const LEVERS: Lever[] = [
-  { lever: "Promote colour bracketing", area: "Bracketing", value: "$111K", amount: 111, effort: "Low", tab: "Bracketing", anchor: "bracketing-promote-color" },
-  { lever: "Promote size bracketing where it pays", area: "Bracketing", value: "$50K", amount: 50, effort: "Low", tab: "Bracketing", anchor: "bracketing-promote-size" },
+  { lever: "Allow colour bracketing", area: "Bracketing", value: "$111K", amount: 111, effort: "Low", tab: "Bracketing", anchor: "bracketing-promote-color" },
+  { lever: "Allow size bracketing where it pays", area: "Bracketing", value: "$50K", amount: 50, effort: "Low", tab: "Bracketing", anchor: "bracketing-promote-size" },
   { lever: "Promote size exchanges", area: "Exchange", value: "$41K", amount: 41, effort: "Medium", tab: "Exchange", anchor: "exchange-promote" },
   { lever: "Promote colour exchanges", area: "Exchange", value: "$16K", amount: 16, effort: "Medium", tab: "Exchange", anchor: "exchange-promote-color" },
   { lever: "Improve colour guidance", area: "Exchange", value: "$6.5K", amount: 6.5, effort: "Medium", tab: "Exchange", anchor: "exchange-promote-color" },
@@ -121,7 +121,7 @@ type Action = {
 };
 const ACTIONS: Action[] = [
   {
-    title: "Push colour bracketing in Running, Casual and Light Hike",
+    title: "Allow colour bracketing in Running, Casual and Light Hike",
     why: "Your biggest single opportunity, and the outcome it produces — keeping the whole order — is also the one that predicts a repeat purchase.",
     impact: "$111K",
     weight: "High",
@@ -231,15 +231,15 @@ function OpportunityBar({ onGo }: { onGo: (tab: string, anchor: string) => void 
             <p className="mt-1.5 text-[44px] font-bold leading-none">{RECOVERABLE_TOTAL}</p>
             <p className="mt-2 max-w-[470px] text-sm leading-relaxed text-primary-100">
               Three moves cover <span className="font-semibold text-neutral-0">$202K</span> of it:
-              promote{" "}
+              allow{" "}
               <span className="font-semibold text-neutral-0">
                 colour bracketing in Running and Casual
               </span>
-              ,{" "}
+, allow{" "}
               <span className="font-semibold text-neutral-0">
                 size bracketing in Steel and Soft Toe
               </span>
-              , and{" "}
+              , and promote{" "}
               <span className="font-semibold text-neutral-0">size exchanges in Light Hike</span>.
             </p>
             <div className="mt-3.5 flex h-2 max-w-[420px] overflow-hidden rounded-full">

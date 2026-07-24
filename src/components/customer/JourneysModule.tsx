@@ -147,7 +147,7 @@ export function readJourney(j: Journey): Read {
       meaning: `Kept the whole order and came back${dept ? ` into ${dept}` : ""} — the pattern worth protecting.` + grew(false),
       action:
         bracket === "color"
-          ? "Push colour bracketing to more of these customers"
+          ? "Allow colour bracketing to more of these customers"
           : "Build a look-alike audience from this group",
     };
   }

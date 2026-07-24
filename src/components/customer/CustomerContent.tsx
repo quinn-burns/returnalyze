@@ -483,34 +483,34 @@ function ActionTable({
     <Card id={id}>
       <CardHeading title={title} subtitle={subtitle} />
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-neutral-600">
-              <th className="whitespace-nowrap py-2 pr-3 font-normal">Department</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Revenue</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">{pctLabel}</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Orders</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Δ Profit / Order</th>
-              <th className="whitespace-nowrap px-3 py-2 text-right font-normal">Rev. Opportunity</th>
-              <th className="py-2 pl-3 font-normal" />
+              <th className="py-2 pr-2 align-bottom font-normal leading-tight">Department</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Revenue</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">{pctLabel}</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Orders</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Δ Profit / Order</th>
+              <th className="px-2 py-2 text-right align-bottom font-normal leading-tight">Rev. Opportunity</th>
+              <th className="py-2 pl-2 font-normal" />
             </tr>
           </thead>
           <tbody>
             {slice.map((r) => (
               <tr key={r.dept} className="border-b border-primary-50 last:border-b-0">
-                <td className="whitespace-nowrap py-3 pr-3 font-medium text-neutral-800">{r.dept}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.revenue}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.pct}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right text-neutral-700">{r.orders}</td>
+                <td className="whitespace-nowrap py-3 pr-2 font-medium text-neutral-800">{r.dept}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.revenue}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.pct}</td>
+                <td className="whitespace-nowrap px-2 py-3 text-right text-neutral-700">{r.orders}</td>
                 <td
-                  className={`whitespace-nowrap px-3 py-3 text-right font-semibold ${negative ? "text-danger-600" : "text-success-600"}`}
+                  className={`whitespace-nowrap px-2 py-3 text-right font-semibold ${negative ? "text-danger-600" : "text-success-600"}`}
                 >
                   {r.delta}
                 </td>
-                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-neutral-800">
+                <td className="whitespace-nowrap px-2 py-3 text-right font-semibold text-neutral-800">
                   {r.opportunity}
                 </td>
-                <td className="py-3 pl-3 text-right">
+                <td className="py-3 pl-2 text-right">
                   <TakeAction context="Bracketing" department={r.dept} />
                 </td>
               </tr>
@@ -542,14 +542,14 @@ function BracketingTab() {
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         <ActionTable
           id="bracketing-promote-size"
-          title="Promote size bracketing"
+          title="Allow size bracketing"
           subtitle="Profitable size bracketing — prioritized by revenue opportunity (→1.05×)"
           pctLabel="% Orders Brkt. Size"
           rows={PROMOTE_SIZE}
         />
         <ActionTable
           id="bracketing-promote-color"
-          title="Promote color bracketing"
+          title="Allow color bracketing"
           subtitle="Profitable color bracketing — prioritized by revenue opportunity (→1.05×)"
           pctLabel="% Orders Brkt. Color"
           rows={PROMOTE_COLOR}
