@@ -109,9 +109,9 @@ export function AiInsight({
         {subtitle ? <p className="mt-1 text-xs text-neutral-600">{subtitle}</p> : null}
         <p className="mt-1.5 w-full text-sm leading-5 text-neutral-700">{children}</p>
       </div>
-      {/* Optional slot for the tab's KPI strip, on white so it reads as the
-          data behind the insight rather than more of the callout. */}
-      {footer ? <div className="border-t border-primary-100 bg-neutral-0">{footer}</div> : null}
+      {/* Optional slot for the tab's KPI panel; it provides its own background
+          and sits flush to the card's bottom edge. */}
+      {footer}
     </div>
   );
 }
@@ -318,6 +318,45 @@ export function KpiStrip({
           <p className="text-[26px] font-bold leading-[32px] text-neutral-800">{kpi.value}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** KPIs as outlined boxes on a blue panel — the look of the Overview hero,
+    used inside an AiInsight footer so a tab's headline metrics read as part of
+    the insight. */
+export function KpiPanel({
+  items,
+  cols = 5,
+}: {
+  items: { label: string; sub?: string; value: string; note?: string; noteTone?: "good" | "muted" }[];
+  cols?: 4 | 5 | 6;
+}) {
+  return (
+    <div className="bg-primary-800 p-4">
+      <div className={`grid grid-cols-2 gap-2.5 ${COLS[cols]}`}>
+        {items.map((kpi) => (
+          <div
+            key={kpi.label}
+            className="rounded-lg border border-primary-600/50 bg-primary-600/25 p-3"
+          >
+            <p className="text-[11px] leading-tight text-primary-200">
+              {kpi.label}
+              {kpi.sub ? <span className="block text-primary-300">{kpi.sub}</span> : null}
+            </p>
+            <p className="mt-1 text-[24px] font-bold leading-none text-neutral-0">{kpi.value}</p>
+            {kpi.note ? (
+              <p
+                className={`mt-1.5 text-[11px] font-medium ${
+                  kpi.noteTone === "muted" ? "text-primary-200" : "text-success-100"
+                }`}
+              >
+                {kpi.note}
+              </p>
+            ) : null}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

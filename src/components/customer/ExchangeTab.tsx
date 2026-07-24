@@ -6,7 +6,7 @@ import {
   Card,
   CardHeading,
   InsightLink,
-  KpiStrip,
+  KpiPanel,
   Pagination,
   TakeAction,
   usePaged,
@@ -328,7 +328,7 @@ export default function ExchangeTab({
       <AiInsight
         title="Exchange Insights"
         subtitle={description}
-        footer={<KpiStrip items={KPIS} cols={4} bare />}
+        footer={<KpiPanel items={KPIS} cols={4} />}
       >
         {insight}
       </AiInsight>

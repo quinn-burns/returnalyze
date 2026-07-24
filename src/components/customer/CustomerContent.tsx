@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ActionModalProvider } from "./ActionSubmit";
-import { AiInsight, Donut, Pagination, TakeAction, usePaged, useReveal } from "./parts";
+import { AiInsight, Donut, KpiPanel, Pagination, TakeAction, usePaged, useReveal } from "./parts";
 import { FILLER_DEPTS, countStr, money, pctStr, seeded } from "./filler";
 import {
   BRAND_OPTS,
@@ -195,21 +195,6 @@ const DISCOURAGE_COLOR: Row[] = padRows(DISCOURAGE_COLOR_BASE, 28, false);
 
 /* --------------------------- primitives -------------------------- */
 
-function Pill({ change, trend }: { change: string; trend: Trend }) {
-  const styles: Record<Trend, string> = {
-    up: "bg-success-50 text-success-600",
-    down: "bg-success-50 text-success-600",
-    flat: "bg-neutral-100 text-neutral-600",
-  };
-  return (
-    <span
-      className={`flex w-fit items-center rounded-full px-2 py-[3px] text-[11px] font-medium ${styles[trend]}`}
-    >
-      {change}
-    </span>
-  );
-}
-
 /* Local twin of the Card in ./parts — kept in step with it, including the `id`
    that lets the Overview tab link straight to a card. */
 function Card({
@@ -312,22 +297,6 @@ function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function KpiRow({ bare = false }: { bare?: boolean }) {
-  return (
-    <div
-      className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5${bare ? "" : " rounded-lg border border-neutral-200 bg-neutral-0"}`}
-    >
-      {KPIS.map((kpi) => (
-        <div key={kpi.label} className="flex flex-col gap-1.5 p-4">
-          <p className="text-xs text-neutral-600">{kpi.label}</p>
-          <p className="text-[28px] font-bold leading-[34px] text-neutral-800">{kpi.value}</p>
-          <Pill change={kpi.change} trend={kpi.trend} />
-        </div>
-      ))}
     </div>
   );
 }
@@ -531,7 +500,17 @@ function BracketingTab() {
       <AiInsight
         title="Bracketing Insights"
         subtitle={TAB_META.Bracketing.description}
-        footer={<KpiRow bare />}
+        footer={
+          <KpiPanel
+            cols={5}
+            items={KPIS.map((k) => ({
+              label: k.label,
+              value: k.value,
+              note: k.change,
+              noteTone: k.trend === "flat" ? "muted" : "good",
+            }))}
+          />
+        }
       >
         {TAB_META.Bracketing.insight}
       </AiInsight>
