@@ -341,30 +341,32 @@ function TypeBreakdown() {
   }));
   return (
     <Card>
-      <CardHeading
-        title="What kind of bracketing?"
-        subtitle="Size = same style, different sizes. Color = same style, different colors."
-      />
-      <div className="mt-4 flex flex-col items-center gap-5 sm:flex-row">
-        <Donut segments={arcs} centerTop={BRACKETED_TOTAL} centerBottom="orders" />
-        <ul className="flex min-w-0 flex-1 flex-col gap-2">
-          {TYPE_BREAKDOWN.map((t) => (
-            <li key={t.label} className="flex items-center gap-2 text-sm">
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: t.color }}
-              />
-              <span className="font-medium text-neutral-800">{t.label}</span>
-              <span className="text-neutral-600">
-                — {t.pct}% · {t.orders} orders
-              </span>
-            </li>
-          ))}
-        </ul>
+      <div className="flex h-full flex-col">
+        <CardHeading
+          title="What kind of bracketing?"
+          subtitle="Size = same style, different sizes. Color = same style, different colors."
+        />
+        <div className="flex flex-1 flex-col items-center justify-center gap-5 py-4 sm:flex-row">
+          <Donut segments={arcs} centerTop={BRACKETED_TOTAL} centerBottom="orders" />
+          <ul className="flex min-w-0 flex-1 flex-col gap-2">
+            {TYPE_BREAKDOWN.map((t) => (
+              <li key={t.label} className="flex items-center gap-2 text-sm">
+                <span
+                  className="size-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: t.color }}
+                />
+                <span className="font-medium text-neutral-800">{t.label}</span>
+                <span className="text-neutral-600">
+                  — {t.pct}% · {t.orders} orders
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-[11px] leading-4 text-neutral-600">
+          Orders can be bracketed on both size and color, so shares add to more than 100%.
+        </p>
       </div>
-      <p className="mt-3 text-[11px] leading-4 text-neutral-600">
-        Orders can be bracketed on both size and color, so shares add to more than 100%.
-      </p>
     </Card>
   );
 }
@@ -392,33 +394,35 @@ function DivergingProfitBar({ value }: { value: number }) {
 function BracketingProfit() {
   return (
     <Card id="bracketing-profit">
-      <CardHeading
-        title="Where bracketing helps or hurts profit"
-        subtitle="Average profit per order by bracketing type — green adds margin, red loses it."
-      />
-      <div className="mt-4 flex flex-col gap-3">
-        {BRACKETING_TYPES.map((t) => (
-          <div key={t.label} className="flex items-center gap-3">
-            <div className="w-16 shrink-0">
-              <p className="text-sm font-medium text-neutral-800">{t.label}</p>
-              <p className="text-[11px] text-neutral-600">{t.orders} orders</p>
+      <div className="flex h-full flex-col">
+        <CardHeading
+          title="Where bracketing helps or hurts profit"
+          subtitle="Average profit per order by bracketing type — green adds margin, red loses it."
+        />
+        <div className="flex flex-1 flex-col justify-center gap-4 py-4">
+          {BRACKETING_TYPES.map((t) => (
+            <div key={t.label} className="flex items-center gap-3">
+              <div className="w-16 shrink-0">
+                <p className="text-sm font-medium text-neutral-800">{t.label}</p>
+                <p className="text-[11px] text-neutral-600">{t.orders} orders</p>
+              </div>
+              <div className="min-w-0 flex-1">
+                <DivergingProfitBar value={t.profit} />
+              </div>
+              <span
+                className={`w-14 shrink-0 text-right text-sm font-semibold ${
+                  t.profit >= 0 ? "text-success-600" : "text-danger-600"
+                }`}
+              >
+                {t.profit >= 0 ? "+" : "−"}${Math.abs(t.profit)}
+              </span>
             </div>
-            <div className="min-w-0 flex-1">
-              <DivergingProfitBar value={t.profit} />
-            </div>
-            <span
-              className={`w-14 shrink-0 text-right text-sm font-semibold ${
-                t.profit >= 0 ? "text-success-600" : "text-danger-600"
-              }`}
-            >
-              {t.profit >= 0 ? "+" : "−"}${Math.abs(t.profit)}
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
+        <p className="text-center text-[10px] text-neutral-600">
+          Profit per order relative to a $0 break-even line
+        </p>
       </div>
-      <p className="mt-3 text-center text-[10px] text-neutral-600">
-        Profit per order relative to a $0 break-even line
-      </p>
     </Card>
   );
 }
@@ -426,38 +430,40 @@ function BracketingProfit() {
 function BracketingOutcomes() {
   return (
     <Card>
-      <CardHeading
-        title="Do bracketed orders come back?"
-        subtitle="Share of each bracketing type kept versus returned."
-      />
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-        {OUTCOME_LEGEND.map((l) => (
-          <span key={l.label} className="flex items-center gap-1.5 text-[11px] text-neutral-600">
-            <span className="size-2.5 rounded-full" style={{ backgroundColor: l.color }} />
-            {l.label}
-          </span>
-        ))}
-      </div>
-      <div className="mt-4 flex flex-col gap-4">
-        {BRACKETING_TYPES.map((t) => {
-          const kept = t.keep[0] + t.keep[1];
-          return (
-            <div key={t.label} className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-neutral-800">{t.label}</span>
-                <span className="text-[11px] text-neutral-600">
-                  <span className="font-semibold text-neutral-700">{kept}% kept</span> ·{" "}
-                  {t.keep[2]}% returned
-                </span>
+      <div className="flex h-full flex-col">
+        <CardHeading
+          title="Do bracketed orders come back?"
+          subtitle="Share of each bracketing type kept versus returned."
+        />
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+          {OUTCOME_LEGEND.map((l) => (
+            <span key={l.label} className="flex items-center gap-1.5 text-[11px] text-neutral-600">
+              <span className="size-2.5 rounded-full" style={{ backgroundColor: l.color }} />
+              {l.label}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-1 flex-col justify-center gap-4 py-4">
+          {BRACKETING_TYPES.map((t) => {
+            const kept = t.keep[0] + t.keep[1];
+            return (
+              <div key={t.label} className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-neutral-800">{t.label}</span>
+                  <span className="text-[11px] text-neutral-600">
+                    <span className="font-semibold text-neutral-700">{kept}% kept</span> ·{" "}
+                    {t.keep[2]}% returned
+                  </span>
+                </div>
+                <div data-anim-bar className="flex h-3 w-full overflow-hidden rounded-[4px]">
+                  {t.keep.map((p, i) => (
+                    <span key={i} style={{ width: `${p}%`, backgroundColor: OUTCOME_LEGEND[i].color }} />
+                  ))}
+                </div>
               </div>
-              <div data-anim-bar className="flex h-3 w-full overflow-hidden rounded-[4px]">
-                {t.keep.map((p, i) => (
-                  <span key={i} style={{ width: `${p}%`, backgroundColor: OUTCOME_LEGEND[i].color }} />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </Card>
   );
@@ -533,11 +539,13 @@ function BracketingTab() {
       >
         {TAB_META.Bracketing.insight}
       </AiInsight>
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      {/* Three charts share one row on a wide screen and stack below it, the
+          same layout as the Exchange tab. */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <TypeBreakdown />
         <BracketingProfit />
+        <BracketingOutcomes />
       </div>
-      <BracketingOutcomes />
       {/* Seven columns need real width, so these pair up only on a large screen
           and otherwise stack full-width rather than scroll sideways. */}
       <div className="grid grid-cols-1 gap-5 2xl:grid-cols-2">
