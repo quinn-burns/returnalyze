@@ -546,9 +546,8 @@ function BracketingTab() {
         <BracketingProfit />
         <BracketingOutcomes />
       </div>
-      {/* Seven columns need real width, so these pair up only on a large screen
-          and otherwise stack full-width rather than scroll sideways. */}
-      <div className="grid grid-cols-1 gap-5 2xl:grid-cols-2">
+      {/* Action tables pair up two-across on a wide screen, one-per-row when narrow. */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         <ActionTable
           id="bracketing-promote-size"
           title="Allow size bracketing"
