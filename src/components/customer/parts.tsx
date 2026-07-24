@@ -88,23 +88,30 @@ export function CardHeading({
 export function AiInsight({
   title = "AI Insight",
   subtitle,
+  footer,
   children,
 }: {
   title?: string;
   subtitle?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-primary-100 bg-primary-50 p-4">
-      <div className="flex items-center gap-1.5">
-        <span className="flex items-center justify-center rounded-full bg-gradient-to-b from-[#27cba7] to-[#0b61dd] p-[3.5px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/overview/ai-logo.svg" alt="" className="size-[17px]" />
-        </span>
-        <h2 className="text-xl font-semibold text-primary-700">{title}</h2>
+    <div className="overflow-hidden rounded-lg border border-primary-100 bg-primary-50">
+      <div className="p-4">
+        <div className="flex items-center gap-1.5">
+          <span className="flex items-center justify-center rounded-full bg-gradient-to-b from-[#27cba7] to-[#0b61dd] p-[3.5px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/overview/ai-logo.svg" alt="" className="size-[17px]" />
+          </span>
+          <h2 className="text-xl font-semibold text-primary-700">{title}</h2>
+        </div>
+        {subtitle ? <p className="mt-1 text-xs text-neutral-600">{subtitle}</p> : null}
+        <p className="mt-1.5 w-full text-sm leading-5 text-neutral-700">{children}</p>
       </div>
-      {subtitle ? <p className="mt-1 text-xs text-neutral-600">{subtitle}</p> : null}
-      <p className="mt-1.5 w-full text-sm leading-5 text-neutral-700">{children}</p>
+      {/* Optional slot for the tab's KPI strip, on white so it reads as the
+          data behind the insight rather than more of the callout. */}
+      {footer ? <div className="border-t border-primary-100 bg-neutral-0">{footer}</div> : null}
     </div>
   );
 }
@@ -291,12 +298,17 @@ const COLS: Record<number, string> = {
 export function KpiStrip({
   items,
   cols = 5,
+  bare = false,
 }: {
   items: { label: string; sub?: string; value: string }[];
   cols?: 4 | 5 | 6;
+  /** Drop the outer frame so it can sit inside another card (e.g. an insight box). */
+  bare?: boolean;
 }) {
   return (
-    <div className={`grid grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-0 ${COLS[cols]}`}>
+    <div
+      className={`grid grid-cols-2 ${bare ? "" : "rounded-lg border border-neutral-200 bg-neutral-0 "}${COLS[cols]}`}
+    >
       {items.map((kpi) => (
         <div key={kpi.label} className="flex flex-col gap-1 p-4">
           <p className="text-xs text-neutral-600">

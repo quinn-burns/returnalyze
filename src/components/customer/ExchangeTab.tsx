@@ -1,6 +1,16 @@
 "use client";
 
-import { Card, CardHeading, InsightLink, KpiStrip, Pagination, TakeAction, usePaged } from "./parts";
+import type { ReactNode } from "react";
+import {
+  AiInsight,
+  Card,
+  CardHeading,
+  InsightLink,
+  KpiStrip,
+  Pagination,
+  TakeAction,
+  usePaged,
+} from "./parts";
 import { FILLER_DEPTS, money, pctStr, seeded } from "./filler";
 
 /* ----------------------------- data ----------------------------- */
@@ -306,10 +316,22 @@ function GuidanceTable({
 
 /* ----------------------------- tab ------------------------------- */
 
-export default function ExchangeTab() {
+export default function ExchangeTab({
+  insight,
+  description,
+}: {
+  insight: ReactNode;
+  description: ReactNode;
+}) {
   return (
     <>
-      <KpiStrip items={KPIS} cols={4} />
+      <AiInsight
+        title="Exchange Insights"
+        subtitle={description}
+        footer={<KpiStrip items={KPIS} cols={4} bare />}
+      >
+        {insight}
+      </AiInsight>
       {/* The three exchange charts share one row on a wide screen and stack below it. */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <ExchangeKind />

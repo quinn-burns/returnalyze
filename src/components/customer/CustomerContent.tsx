@@ -316,9 +316,11 @@ function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   );
 }
 
-function KpiRow() {
+function KpiRow({ bare = false }: { bare?: boolean }) {
   return (
-    <div className="grid grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-0 sm:grid-cols-3 lg:grid-cols-5">
+    <div
+      className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5${bare ? "" : " rounded-lg border border-neutral-200 bg-neutral-0"}`}
+    >
       {KPIS.map((kpi) => (
         <div key={kpi.label} className="flex flex-col gap-1.5 p-4">
           <p className="text-xs text-neutral-600">{kpi.label}</p>
@@ -526,7 +528,13 @@ function ActionTable({
 function BracketingTab() {
   return (
     <>
-      <KpiRow />
+      <AiInsight
+        title="Bracketing Insights"
+        subtitle={TAB_META.Bracketing.description}
+        footer={<KpiRow bare />}
+      >
+        {TAB_META.Bracketing.insight}
+      </AiInsight>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <TypeBreakdown />
         <BracketingProfit />
@@ -655,11 +663,11 @@ export default function CustomerContent() {
         <div className="flex flex-col gap-5 px-4 pb-24 pt-3.5">
           <FilterBar tab={tab} />
           <TabBar tab={tab} onChange={pickTab} />
-          {/* Insight tabs fold the description into the box so the framing and
-              the finding read as one block, not a grey line stacked on a blue one.
-              Overview has no box here (its AI section lives in OverviewTab), so it
-              keeps the standalone line. */}
-          {TAB_META[tab].insight ? (
+          {/* Bracketing and Exchange render their own insight box with the KPI
+              strip folded in, so they are skipped here to avoid a second one.
+              The rest fold the description into the box; Overview keeps a plain
+              line since its AI section lives in OverviewTab. */}
+          {tab === "Bracketing" || tab === "Exchange" ? null : TAB_META[tab].insight ? (
             <AiInsight title={`${tab} Insights`} subtitle={TAB_META[tab].description}>
               {TAB_META[tab].insight}
             </AiInsight>
@@ -671,7 +679,10 @@ export default function CustomerContent() {
           ) : tab === "Bracketing" ? (
             <BracketingTab />
           ) : tab === "Exchange" ? (
-            <ExchangeTab />
+            <ExchangeTab
+              insight={TAB_META.Exchange.insight}
+              description={TAB_META.Exchange.description}
+            />
           ) : tab === "Segments" ? (
             <SegmentsTab />
           ) : (
