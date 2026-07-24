@@ -532,33 +532,36 @@ function BracketingTab() {
         <BracketingProfit />
       </div>
       <BracketingOutcomes />
-      <ActionTable
-        id="bracketing-promote-size"
-        title="Promote size bracketing"
-        subtitle="Profitable size bracketing — prioritized by revenue opportunity (→1.05×)"
-        pctLabel="% Orders Brkt. Size"
-        rows={PROMOTE_SIZE}
-      />
-      <ActionTable
-        id="bracketing-promote-color"
-        title="Promote color bracketing"
-        subtitle="Profitable color bracketing — prioritized by revenue opportunity (→1.05×)"
-        pctLabel="% Orders Brkt. Color"
-        rows={PROMOTE_COLOR}
-      />
-      <ActionTable
-        title="Discourage size bracketing"
-        subtitle="Unprofitable size bracketing — opportunity from reducing (→0.95×)"
-        pctLabel="% Orders Brkt. Size"
-        rows={DISCOURAGE_SIZE}
-        negative
-      />
-      <ActionTable
-        title="Discourage color bracketing"
-        subtitle="Least profitable color bracketing — opportunity from reducing (→0.95×)"
-        pctLabel="% Orders Brkt. Color"
-        rows={DISCOURAGE_COLOR}
-      />
+      {/* Action tables pair up two-across on a wide screen, one-per-row when narrow. */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <ActionTable
+          id="bracketing-promote-size"
+          title="Promote size bracketing"
+          subtitle="Profitable size bracketing — prioritized by revenue opportunity (→1.05×)"
+          pctLabel="% Orders Brkt. Size"
+          rows={PROMOTE_SIZE}
+        />
+        <ActionTable
+          id="bracketing-promote-color"
+          title="Promote color bracketing"
+          subtitle="Profitable color bracketing — prioritized by revenue opportunity (→1.05×)"
+          pctLabel="% Orders Brkt. Color"
+          rows={PROMOTE_COLOR}
+        />
+        <ActionTable
+          title="Discourage size bracketing"
+          subtitle="Unprofitable size bracketing — opportunity from reducing (→0.95×)"
+          pctLabel="% Orders Brkt. Size"
+          rows={DISCOURAGE_SIZE}
+          negative
+        />
+        <ActionTable
+          title="Discourage color bracketing"
+          subtitle="Least profitable color bracketing — opportunity from reducing (→0.95×)"
+          pctLabel="% Orders Brkt. Color"
+          rows={DISCOURAGE_COLOR}
+        />
+      </div>
     </>
   );
 }

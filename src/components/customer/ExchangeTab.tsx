@@ -173,9 +173,12 @@ function ComeBack() {
       <div className="mt-4 flex flex-col gap-3">
         {COME_BACK.map((s) => (
           <div key={s.style} className="flex items-center gap-3">
-            <span className="w-40 shrink-0 truncate text-sm font-medium text-neutral-800">
-              {s.style}
-            </span>
+            {/* Style name over its exchange count, so the row stays narrow enough
+                to sit in the three-across layout without crushing the bar. */}
+            <div className="w-28 shrink-0">
+              <div className="truncate text-sm font-medium text-neutral-800">{s.style}</div>
+              <div className="truncate text-[10px] leading-tight text-neutral-500">{s.detail}</div>
+            </div>
             <div className="h-4 min-w-0 flex-1 overflow-hidden rounded-[4px] bg-neutral-100">
               <div
                 data-anim-bar
@@ -183,8 +186,8 @@ function ComeBack() {
                 style={{ width: `${(s.pct / max) * 100}%` }}
               />
             </div>
-            <span className="w-44 shrink-0 text-right text-xs text-neutral-600">
-              <span className="font-semibold text-neutral-800">{s.pct}%</span> · {s.detail}
+            <span className="w-12 shrink-0 text-right text-xs font-semibold text-neutral-800">
+              {s.pct}%
             </span>
           </div>
         ))}
@@ -307,41 +310,45 @@ export default function ExchangeTab() {
   return (
     <>
       <KpiStrip items={KPIS} cols={4} />
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      {/* The three exchange charts share one row on a wide screen and stack below it. */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <ExchangeKind />
         <ExchangeOutcome />
+        <ComeBack />
       </div>
-      <ComeBack />
-      <PromoteTable
-        id="exchange-promote"
-        title="Promote size exchanges"
-        subtitle="Low size-exchange rate — opportunity from increasing (→1.05×)"
-        pctLabel="% Ret. Exch. Size"
-        rows={PROMOTE_SIZE_ALL}
-      />
-      <PromoteTable
-        id="exchange-promote-color"
-        title="Promote color exchanges"
-        subtitle="Low color-exchange rate — opportunity from increasing (→1.05×)"
-        pctLabel="% Ret. Exch. Color"
-        rows={PROMOTE_COLOR_ALL}
-      />
-      <GuidanceTable
-        title="Improve size guidance"
-        subtitle="High share of size exchanges returned again — opportunity from reducing (→0.95×)"
-        insight="Size fit insights by style"
-        pctLabel="% Ret. Exch. Size"
-        returnedLabel="% Size Exch. Returned"
-        rows={IMPROVE_SIZE_ALL}
-      />
-      <GuidanceTable
-        title="Improve color guidance"
-        subtitle="High share of color exchanges returned again — opportunity from reducing (→0.95×)"
-        insight="Color insights by style"
-        pctLabel="% Ret. Exch. Color"
-        returnedLabel="% Color Exch. Returned"
-        rows={IMPROVE_COLOR_ALL}
-      />
+      {/* Action tables pair up two-across on a wide screen, one-per-row when narrow. */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <PromoteTable
+          id="exchange-promote"
+          title="Promote size exchanges"
+          subtitle="Low size-exchange rate — opportunity from increasing (→1.05×)"
+          pctLabel="% Ret. Exch. Size"
+          rows={PROMOTE_SIZE_ALL}
+        />
+        <PromoteTable
+          id="exchange-promote-color"
+          title="Promote color exchanges"
+          subtitle="Low color-exchange rate — opportunity from increasing (→1.05×)"
+          pctLabel="% Ret. Exch. Color"
+          rows={PROMOTE_COLOR_ALL}
+        />
+        <GuidanceTable
+          title="Improve size guidance"
+          subtitle="High share of size exchanges returned again — opportunity from reducing (→0.95×)"
+          insight="Size fit insights by style"
+          pctLabel="% Ret. Exch. Size"
+          returnedLabel="% Size Exch. Returned"
+          rows={IMPROVE_SIZE_ALL}
+        />
+        <GuidanceTable
+          title="Improve color guidance"
+          subtitle="High share of color exchanges returned again — opportunity from reducing (→0.95×)"
+          insight="Color insights by style"
+          pctLabel="% Ret. Exch. Color"
+          returnedLabel="% Color Exch. Returned"
+          rows={IMPROVE_COLOR_ALL}
+        />
+      </div>
     </>
   );
 }
